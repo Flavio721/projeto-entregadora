@@ -1,0 +1,79 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role{
+    ADMIN
+    OPERATOR
+    DELIVERY_MAN
+}
+enum Delivery{
+    CREATED
+    IN_SEPARATION
+    IN_DELIVERY
+    DELIVERED
+}
+enum Vehicle{
+    UNAVALIABLE
+    AVALIABLE
+}
+enum DeliveryManStatus{
+    UNAVALIABLE
+    AVALIABLE
+}
+model User {
+  id        Int     @id @default(autoincrement())
+  name      String
+  surname   String
+  email     String  @unique
+  password  String
+  cpf       String? @unique
+  address   String?
+  phone     String?
+  role      Role    @default(DELIVERY_MAN)
+  status    DeliveryManStatus?
+
+  createdPedidos       Pedido[] @relation("CreatedBy")
+  administeredPedidos  Pedido[] @relation("AdministeredBy")
+  catchedPedidos       Pedido[] @relation("CatchedBy")
+}
+
+
+model Pedido {
+  id              Int      @id @default(autoincrement())
+  created_at      DateTime @default(now())
+  estimated_date  DateTime
+  address         String?
+  peso            Float
+  status          Delivery @default(CREATED)
+  valor           Float
+  frete           Float
+
+  created_by       Int?
+  administered_by  Int?
+  catched_by       Int?
+  carroId          Int?
+
+  createdBy User? @relation("CreatedBy",fields: [created_by],references: [id],onDelete: Cascade)
+
+  administeredBy User? @relation("AdministeredBy",fields: [administered_by],references: [id],onDelete: Cascade)
+
+  catchedBy User? @relation("CatchedBy",fields: [catched_by],references: [id],onDelete: Cascade)
+
+  carro        Veiculo?      @relation(fields: [carroId], references: [id], onDelete: Cascade)
+}
+model Veiculo{
+  id              Int      @id @default(autoincrement())
+  crv             Int
+  marca           String
+  tipo            String
+  ano             Int
+  status          Vehicle @default(AVALIABLE)
+
+  pedidos  Pedido[]
+}
