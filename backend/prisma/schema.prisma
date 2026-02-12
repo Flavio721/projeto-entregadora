@@ -54,6 +54,7 @@ model Pedido {
   valor           Float
   frete           Float
   imageUrl        String
+  clientCpf       String
 
   created_by       Int?
   administered_by  Int?
@@ -71,10 +72,17 @@ model Pedido {
 model Veiculo{
   id              Int      @id @default(autoincrement())
   crv             Int      @unique
+  nome            String
   marca           String
   tipo            String
   ano             Int
   status          Vehicle @default(AVALIABLE)
 
   pedidos  Pedido[]
+}
+
+model Historico{
+  id              Int     @id @default(autoincrement())
+  note            String
+  date            DateTime
 }
