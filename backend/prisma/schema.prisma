@@ -53,6 +53,7 @@ model Pedido {
   status          Delivery @default(CREATED)
   valor           Float
   frete           Float
+  imageUrl        String
 
   created_by       Int?
   administered_by  Int?
@@ -69,7 +70,7 @@ model Pedido {
 }
 model Veiculo{
   id              Int      @id @default(autoincrement())
-  crv             Int
+  crv             Int      @unique
   marca           String
   tipo            String
   ano             Int

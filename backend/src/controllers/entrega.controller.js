@@ -103,3 +103,29 @@ export async function assignDeliveryMan(req, res){
         return res.status(500).json({ error: "Erro no sistema" })
     }
 }
+export async function uploadOrderImage(req, res){
+    try{
+        if(!req.file){
+            return res.status(400).json({ error: "Imagem não enviada"});
+        }
+
+        const orderId = req.query;
+        const imagePath = `/uploads/${req.file.filename}`;
+
+        const updateOrder = await prisma.pedido.update({
+            where: { id: orderId },
+            data:{
+                imageUrl: imagePath,
+                status: "DELIVERED"
+            }
+        });
+
+        return res.status(200).json({
+            message: "Pedido entregue",
+            updateOrder
+        });
+    }catch (error){
+        console.error("Erro: ", error);
+        return res.status(500).json({ error: "Erro para subir a imagem" });
+    }
+}

@@ -1,44 +1,7 @@
 import { PrismaClient } from "@prisma/client";
-import bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
-export async function registerUser(req, res) {
-    try {
-        const { name, surname, email, password, cpf, address, phone } = req.body;
-        const existingEmail = await prisma.user.findUnique({
-            where: { email }
-        });
-        if (existingEmail) {
-            return res.status(400).json({ error: "Email já cadastrado" });
-        }
-
-        const existingCpf = await prisma.user.findUnique({
-            where: { cpf }
-        });
-        if (existingCpf) {
-            return res.status(400).json({ error: "CPF já cadastrado" });
-        }
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        const user = await prisma.user.create({
-            data: {
-                name,
-                surname,
-                email,
-                password: hashedPassword,
-                cpf,
-                address,
-                phone
-            }
-        });
-
-        res.status(201).json(user);
-
-    } catch (error) {
-        res.status(500).json({ error: "Erro ao registrar usuário" });
-    }
-}
 export async function getUsers(req, res) {
     try {
         const users = await prisma.user.findMany();
