@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Operador - FleetFlow</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --navy: #0A1628;
+            --navy-light: #1A2942;
+            --navy-lighter: #2A3952;
+            --orange: #FF6B35;
+            --orange-light: #FF8C61;
+            --yellow: #FFB020;
+            --green: #06D6A0;
+            --green-dark: #05B587;
+            --gray: #6B7280;
+            --gray-light: #E5E7EB;
+            --gray-lighter: #F9FAFB;
+            --white: #FFFFFF;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--gray-lighter);
+            color: var(--navy);
+            line-height: 1.6;
+        }
+
+        .shell {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: var(--navy);
+            color: var(--white);
+            padding: 2rem 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 100;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-logo {
+            padding: 0 1.5rem 2rem;
+            border-bottom: 1px solid var(--navy-lighter);
+            margin-bottom: 2rem;
+        }
+
+        .logo-text {
+            font-family: 'Space Mono', monospace;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--orange);
+            letter-spacing: -0.02em;
+        }
+
+        .logo-subtitle {
+            font-size: 0.75rem;
+            color: var(--gray);
+            margin-top: 0.25rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.875rem 1.5rem;
+            color: var(--gray-light);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            background: var(--navy-light);
+            color: var(--white);
+            border-left-color: var(--orange);
+        }
+
+        .nav-link.active {
+            background: var(--navy-lighter);
+            color: var(--white);
+            border-left-color: var(--orange);
+        }
+
+        .nav-icon {
+            margin-right: 0.875rem;
+            font-size: 1.25rem;
+        }
+
+        .nav-footer {
+            position: absolute;
+            bottom: 2rem;
+            left: 0;
+            right: 0;
+            padding: 0 1.5rem;
+            border-top: 1px solid var(--navy-lighter);
+            padding-top: 1.5rem;
+        }
+
+        .nav-footer-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            color: var(--gray-light);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+        }
+
+        .nav-footer-link:hover {
+            background: var(--navy-light);
+            color: var(--white);
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            transition: margin-left 0.3s ease;
+        }
+
+        .topbar {
+            background: var(--white);
+            padding: 1.25rem 2rem;
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .topbar-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--navy);
+        }
+
+        .topbar-user {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .notification-badge {
+            position: relative;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--gray-lighter);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .notification-badge:hover {
+            background: var(--orange);
+            color: var(--white);
+            transform: scale(1.1);
+        }
+
+        .notification-dot {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 8px;
+            height: 8px;
+            background: var(--orange);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.1); }
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--orange), var(--yellow));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: var(--white);
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .user-avatar:hover {
+            transform: scale(1.1);
+        }
+
+        .content-area {
+            padding: 2rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            animation: fadeInUp 0.6s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stat-card {
+            background: var(--white);
+            padding: 1.75rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--orange), var(--yellow));
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--gray);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--navy);
+            font-family: 'Space Mono', monospace;
+        }
+
+        .stat-change {
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .stat-change.positive {
+            color: var(--green);
+        }
+
+        .stat-change.negative {
+            color: var(--orange);
+        }
+
+        .filters-bar {
+            background: var(--white);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            margin-bottom: 1.5rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .filter-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--navy);
+            margin-bottom: 0.5rem;
+        }
+
+        .filter-input,
+        .filter-select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--gray-light);
+            border-radius: 8px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+        }
+
+        .filter-input:focus,
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--orange);
+            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--orange);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background: var(--orange-light);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .btn-secondary {
+            background: var(--navy);
+            color: var(--white);
+        }
+
+        .btn-secondary:hover {
+            background: var(--navy-light);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--orange);
+            border: 2px solid var(--orange);
+        }
+
+        .btn-ghost:hover {
+            background: var(--orange);
+            color: var(--white);
+        }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+
+        .data-table {
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table thead {
+            background: var(--gray-lighter);
+        }
+
+        .table th {
+            padding: 1rem 1.5rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--navy);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+
+        .table td {
+            padding: 1.25rem 1.5rem;
+            border-top: 1px solid var(--gray-light);
+        }
+
+        .table tbody tr {
+            transition: all 0.2s ease;
+        }
+
+        .table tbody tr:hover {
+            background: var(--gray-lighter);
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.375rem 0.875rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .badge-pending {
+            background: var(--gray-light);
+            color: var(--gray);
+        }
+
+        .badge-transit {
+            background: #FFF3E0;
+            color: var(--yellow);
+        }
+
+        .badge-delivered {
+            background: #E7F9F3;
+            color: var(--green);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 22, 40, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--white);
+            border-radius: 16px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--gray-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--navy);
+        }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: var(--gray-lighter);
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            font-size: 1.25rem;
+        }
+
+        .modal-close:hover {
+            background: var(--orange);
+            color: var(--white);
+            transform: rotate(90deg);
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            color: var(--navy);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-input,
+        .form-select {
+            width: 100%;
+            padding: 0.875rem;
+            border: 2px solid var(--gray-light);
+            border-radius: 8px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+        }
+
+        .form-input:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: var(--orange);
+            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+        }
+
+        .form-help {
+            font-size: 0.875rem;
+            color: var(--gray);
+            margin-top: 0.5rem;
+        }
+
+        .btn-full {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .weight-indicator {
+            margin-top: 0.75rem;
+            padding: 1rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            display: none;
+        }
+
+        .weight-indicator.valid {
+            display: block;
+            background: #E7F9F3;
+            color: var(--green);
+            border: 2px solid var(--green);
+        }
+
+        .weight-indicator.invalid {
+            display: block;
+            background: #FFE5E0;
+            color: #DC2626;
+            border: 2px solid #DC2626;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .filters-bar {
+                flex-direction: column;
+            }
+
+            .filter-group {
+                width: 100%;
+            }
+
+            .table {
+                font-size: 0.875rem;
+            }
+
+            .table th,
+            .table td {
+                padding: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="shell">
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-text">FleetFlow</div>
+                <div class="logo-subtitle">Sistema de Logística</div>
+            </div>
+            <nav>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="#" class="nav-link active">
+                            <span class="nav-icon">📦</span>
+                            Pedidos
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <span class="nav-icon">🚚</span>
+                            Entregadores
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <span class="nav-icon">🚗</span>
+                            Veículos
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <span class="nav-icon">📊</span>
+                            Relatórios
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <span class="nav-icon">⚙️</span>
+                            Configurações
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <div class="nav-footer">
+                <a href="admin.html" class="nav-footer-link">
+                    <span class="nav-icon">👤</span>
+                    Painel Admin
+                </a>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="topbar">
+                <h1 class="topbar-title">Central de Operações</h1>
+                <div class="topbar-user">
+                    <div class="notification-badge">
+                        <span>🔔</span>
+                        <span class="notification-dot"></span>
+                    </div>
+                    <div class="user-avatar">JD</div>
+                </div>
+            </div>
+
+            <div class="content-area">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Entregas Hoje</div>
+                        <div class="stat-value">47</div>
+                        <div class="stat-change positive">
+                            ↗ +12% vs ontem
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Pendentes</div>
+                        <div class="stat-value">12</div>
+                        <div class="stat-change negative">
+                            ⚠️ Requer atenção
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Em Trânsito</div>
+                        <div class="stat-value">18</div>
+                        <div class="stat-change positive">
+                            ✓ No prazo
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Entregues</div>
+                        <div class="stat-value">17</div>
+                        <div class="stat-change positive">
+                            ✓ 100% sucesso
+                        </div>
+                    </div>
+                </div>
+
+                <div class="filters-bar">
+                    <div class="filter-group">
+                        <label class="filter-label">Buscar por CPF</label>
+                        <input type="text" class="filter-input" placeholder="Digite o CPF..." id="cpf-filter">
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">Status</label>
+                        <select class="filter-select" id="status-filter">
+                            <option value="">Todos</option>
+                            <option value="pending">Pendente</option>
+                            <option value="transit">Em Trânsito</option>
+                            <option value="delivered">Entregue</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" onclick="openModal('assign-modal')">
+                        + Atribuir Entrega
+                    </button>
+                </div>
+
+                <div class="data-table">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Pedido</th>
+                                <th>Cliente</th>
+                                <th>CPF</th>
+                                <th>Endereço</th>
+                                <th>Peso</th>
+                                <th>Entregador</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="deliveries-table">
+                            <tr data-status="transit" data-cpf="123.456.789-00">
+                                <td><strong>#2461</strong></td>
+                                <td>Maria Silva</td>
+                                <td>123.456.789-00</td>
+                                <td>R. das Flores, 123 - Centro</td>
+                                <td>3.5 kg</td>
+                                <td>Carlos Santos</td>
+                                <td><span class="badge badge-transit">Em Trânsito</span></td>
+                                <td><button class="btn btn-secondary btn-sm">Gerenciar</button></td>
+                            </tr>
+                            <tr data-status="delivered" data-cpf="987.654.321-00">
+                                <td><strong>#2462</strong></td>
+                                <td>João Oliveira</td>
+                                <td>987.654.321-00</td>
+                                <td>Av. Principal, 456 - Jardim</td>
+                                <td>2.1 kg</td>
+                                <td>Ana Costa</td>
+                                <td><span class="badge badge-delivered">Entregue</span></td>
+                                <td><button class="btn btn-secondary btn-sm">Gerenciar</button></td>
+                            </tr>
+                            <tr data-status="pending" data-cpf="456.789.123-00">
+                                <td><strong>#2463</strong></td>
+                                <td>Pedro Souza</td>
+                                <td>456.789.123-00</td>
+                                <td>R. do Comércio, 789 - Vila Nova</td>
+                                <td>15.0 kg</td>
+                                <td>-</td>
+                                <td><span class="badge badge-pending">Pendente</span></td>
+                                <td><button class="btn btn-secondary btn-sm">Gerenciar</button></td>
+                            </tr>
+                            <tr data-status="transit" data-cpf="321.654.987-00">
+                                <td><strong>#2464</strong></td>
+                                <td>Ana Paula</td>
+                                <td>321.654.987-00</td>
+                                <td>Av. das Acácias, 321 - Bela Vista</td>
+                                <td>2.1 kg</td>
+                                <td>Roberto Lima</td>
+                                <td><span class="badge badge-transit">Em Trânsito</span></td>
+                                <td><button class="btn btn-secondary btn-sm">Gerenciar</button></td>
+                            </tr>
+                            <tr data-status="pending" data-cpf="789.123.456-00">
+                                <td><strong>#2465</strong></td>
+                                <td>Ricardo Fernandes</td>
+                                <td>789.123.456-00</td>
+                                <td>R. do Sol, 147 - Parque Verde</td>
+                                <td>450.0 kg</td>
+                                <td>-</td>
+                                <td><span class="badge badge-pending">Pendente</span></td>
+                                <td><button class="btn btn-secondary btn-sm">Gerenciar</button></td>
+                            </tr>
+                            <tr data-status="pending" data-cpf="159.753.486-00">
+                                <td><strong>#2466</strong></td>
+                                <td>Lucia Martins</td>
+                                <td>159.753.486-00</td>
+                                <td>R. das Palmeiras, 88 - Alto da Boa Vista</td>
+                                <td>75.0 kg</td>
+                                <td>-</td>
+                                <td><span class="badge badge-pending">Pendente</span></td>
+                                <td><button class="btn btn-secondary btn-sm">Gerenciar</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal: Atribuir Entrega -->
+    <div id="assign-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Atribuir Nova Entrega</h3>
+                <button class="modal-close" onclick="closeModal('assign-modal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <form onsubmit="assignDelivery(event)">
+                    <div class="form-group">
+                        <label class="form-label">Número do Pedido</label>
+                        <input type="text" class="form-input" placeholder="#2466" value="#2466" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Peso da Carga (kg)</label>
+                        <input type="number" class="form-input" placeholder="0.0" step="0.1" id="cargo-weight" oninput="validateWeight()" required>
+                        <p class="form-help">Insira o peso da carga para validar o veículo apropriado</p>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Selecionar Veículo</label>
+                        <select class="form-select" id="vehicle-select" required disabled>
+                            <option value="">Primeiro insira o peso da carga</option>
+                        </select>
+                        <div id="weight-indicator" class="weight-indicator"></div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Selecionar Entregador</label>
+                        <select class="form-select" id="driver-select" required disabled>
+                            <option value="">Primeiro selecione o veículo</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full">Confirmar Atribuição</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Dados dos veículos
+        const vehicles = [
+            { id: 1, name: 'Moto - ABC-1234', capacity: 50, type: 'moto' },
+            { id: 2, name: 'Moto - XYZ-5678', capacity: 50, type: 'moto' },
+            { id: 3, name: 'Van - DEF-5678', capacity: 500, type: 'van' },
+            { id: 4, name: 'Van - QWE-9012', capacity: 500, type: 'van' },
+            { id: 5, name: 'Caminhão - GHI-9012', capacity: 2000, type: 'caminhao' }
+        ];
+
+        const drivers = {
+            moto: ['Carlos Santos', 'Ana Costa'],
+            van: ['Roberto Lima', 'Fernanda Souza'],
+            caminhao: ['Marcos Oliveira', 'Paulo Santos']
+        };
+
+        // Validação de peso
+        function validateWeight() {
+            const weight = parseFloat(document.getElementById('cargo-weight').value);
+            const vehicleSelect = document.getElementById('vehicle-select');
+            const indicator = document.getElementById('weight-indicator');
+            
+            if (!weight || weight <= 0) {
+                vehicleSelect.disabled = true;
+                vehicleSelect.innerHTML = '<option value="">Primeiro insira o peso da carga</option>';
+                indicator.style.display = 'none';
+                document.getElementById('driver-select').disabled = true;
+                return;
+            }
+
+            // Filtrar veículos compatíveis
+            const compatibleVehicles = vehicles.filter(v => v.capacity >= weight);
+            
+            vehicleSelect.disabled = false;
+            vehicleSelect.innerHTML = '<option value="">Selecione um veículo</option>';
+            
+            if (compatibleVehicles.length > 0) {
+                compatibleVehicles.forEach(vehicle => {
+                    const option = document.createElement('option');
+                    option.value = vehicle.id;
+                    option.textContent = `${vehicle.name} (Cap: ${vehicle.capacity}kg)`;
+                    option.dataset.type = vehicle.type;
+                    vehicleSelect.appendChild(option);
+                });
+                
+                indicator.className = 'weight-indicator valid';
+                indicator.innerHTML = `✓ ${compatibleVehicles.length} veículo(s) disponível(is) para ${weight}kg`;
+            } else {
+                indicator.className = 'weight-indicator invalid';
+                indicator.innerHTML = `✕ Nenhum veículo suporta ${weight}kg. Capacidade máxima: ${Math.max(...vehicles.map(v => v.capacity))}kg`;
+            }
+        }
+
+        // Atualizar entregadores baseado no veículo
+        document.getElementById('vehicle-select').addEventListener('change', function(e) {
+            const selectedOption = e.target.options[e.target.selectedIndex];
+            const vehicleType = selectedOption.dataset.type;
+            const driverSelect = document.getElementById('driver-select');
+            
+            if (!vehicleType) {
+                driverSelect.disabled = true;
+                driverSelect.innerHTML = '<option value="">Primeiro selecione o veículo</option>';
+                return;
+            }
+            
+            driverSelect.disabled = false;
+            driverSelect.innerHTML = '<option value="">Selecione um entregador</option>';
+            
+            drivers[vehicleType].forEach(driver => {
+                const option = document.createElement('option');
+                option.value = driver;
+                option.textContent = driver;
+                driverSelect.appendChild(option);
+            });
+        });
+
+        // Atribuir entrega
+        function assignDelivery(event) {
+            event.preventDefault();
+            alert('Entrega atribuída com sucesso! ✓');
+            closeModal('assign-modal');
+            document.querySelector('form').reset();
+            document.getElementById('vehicle-select').disabled = true;
+            document.getElementById('driver-select').disabled = true;
+            document.getElementById('weight-indicator').style.display = 'none';
+        }
+
+        // Modal functions
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Fechar modal ao clicar fora
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.remove('active');
+                }
+            });
+        });
+
+        // Filtros da tabela
+        document.getElementById('cpf-filter').addEventListener('input', filterTable);
+        document.getElementById('status-filter').addEventListener('change', filterTable);
+
+        function filterTable() {
+            const cpfFilter = document.getElementById('cpf-filter').value.toLowerCase();
+            const statusFilter = document.getElementById('status-filter').value;
+            const rows = document.querySelectorAll('#deliveries-table tr');
+
+            rows.forEach(row => {
+                const cpf = row.dataset.cpf.toLowerCase();
+                const status = row.dataset.status;
+                
+                const matchCpf = !cpfFilter || cpf.includes(cpfFilter);
+                const matchStatus = !statusFilter || status === statusFilter;
+                
+                row.style.display = matchCpf && matchStatus ? '' : 'none';
+            });
+        }
+    </script>
+</body>
+</html>

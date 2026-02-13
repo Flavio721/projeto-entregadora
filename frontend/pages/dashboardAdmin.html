@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Admin - FleetFlow</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --navy: #0A1628;
+            --navy-light: #1A2942;
+            --navy-lighter: #2A3952;
+            --orange: #FF6B35;
+            --orange-light: #FF8C61;
+            --yellow: #FFB020;
+            --green: #06D6A0;
+            --green-dark: #05B587;
+            --gray: #6B7280;
+            --gray-light: #E5E7EB;
+            --gray-lighter: #F9FAFB;
+            --white: #FFFFFF;
+            --red: #DC2626;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--gray-lighter);
+            color: var(--navy);
+            line-height: 1.6;
+        }
+
+        .shell {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: var(--navy);
+            color: var(--white);
+            padding: 2rem 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 100;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-logo {
+            padding: 0 1.5rem 2rem;
+            border-bottom: 1px solid var(--navy-lighter);
+            margin-bottom: 2rem;
+        }
+
+        .logo-text {
+            font-family: 'Space Mono', monospace;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--orange);
+            letter-spacing: -0.02em;
+        }
+
+        .logo-subtitle {
+            font-size: 0.75rem;
+            color: var(--gray);
+            margin-top: 0.25rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.875rem 1.5rem;
+            color: var(--gray-light);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            background: var(--navy-light);
+            color: var(--white);
+            border-left-color: var(--orange);
+        }
+
+        .nav-link.active {
+            background: var(--navy-lighter);
+            color: var(--white);
+            border-left-color: var(--orange);
+        }
+
+        .nav-icon {
+            margin-right: 0.875rem;
+            font-size: 1.25rem;
+        }
+
+        .nav-footer {
+            position: absolute;
+            bottom: 2rem;
+            left: 0;
+            right: 0;
+            padding: 0 1.5rem;
+            border-top: 1px solid var(--navy-lighter);
+            padding-top: 1.5rem;
+        }
+
+        .nav-footer-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            color: var(--gray-light);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+        }
+
+        .nav-footer-link:hover {
+            background: var(--navy-light);
+            color: var(--white);
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            transition: margin-left 0.3s ease;
+        }
+
+        .topbar {
+            background: var(--white);
+            padding: 1.25rem 2rem;
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .topbar-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--navy);
+        }
+
+        .topbar-user {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .notification-badge {
+            position: relative;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--gray-lighter);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .notification-badge:hover {
+            background: var(--orange);
+            color: var(--white);
+            transform: scale(1.1);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--orange), var(--yellow));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: var(--white);
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .user-avatar:hover {
+            transform: scale(1.1);
+        }
+
+        .content-area {
+            padding: 2rem;
+        }
+
+        .admin-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            animation: fadeInUp 0.6s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .revenue-card {
+            background: linear-gradient(135deg, var(--orange), var(--orange-light));
+            padding: 2rem;
+            border-radius: 12px;
+            color: var(--white);
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .revenue-card::before {
+            content: '💰';
+            position: absolute;
+            right: -10px;
+            bottom: -10px;
+            font-size: 6rem;
+            opacity: 0.1;
+        }
+
+        .revenue-label {
+            font-size: 0.875rem;
+            opacity: 0.9;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .revenue-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            font-family: 'Space Mono', monospace;
+        }
+
+        .stat-card {
+            background: var(--white);
+            padding: 1.75rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--orange), var(--yellow));
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--gray);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--navy);
+            font-family: 'Space Mono', monospace;
+        }
+
+        .stat-change {
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .stat-change.positive {
+            color: var(--green);
+        }
+
+        .user-management {
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .section-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--gray-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--navy);
+        }
+
+        .search-bar {
+            margin: 1.5rem;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            padding-left: 2.5rem;
+            border: 2px solid var(--gray-light);
+            border-radius: 8px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: 0.75rem center;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--orange);
+            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+        }
+
+        .user-list {
+            list-style: none;
+        }
+
+        .user-item {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--gray-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+
+        .user-item:hover {
+            background: var(--gray-lighter);
+        }
+
+        .user-item:last-child {
+            border-bottom: none;
+        }
+
+        .user-details {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--orange), var(--yellow));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .user-info h4 {
+            font-weight: 600;
+            color: var(--navy);
+            margin-bottom: 0.25rem;
+        }
+
+        .user-info p {
+            font-size: 0.875rem;
+            color: var(--gray);
+        }
+
+        .user-role {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.625rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+
+        .role-admin {
+            background: #FEE;
+            color: var(--red);
+        }
+
+        .role-operator {
+            background: #FFF3E0;
+            color: var(--yellow);
+        }
+
+        .role-driver {
+            background: #E7F9F3;
+            color: var(--green);
+        }
+
+        .user-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--orange);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background: var(--orange-light);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .btn-secondary {
+            background: var(--navy);
+            color: var(--white);
+        }
+
+        .btn-secondary:hover {
+            background: var(--navy-light);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--orange);
+            border: 2px solid var(--orange);
+        }
+
+        .btn-ghost:hover {
+            background: var(--orange);
+            color: var(--white);
+        }
+
+        .btn-danger {
+            background: transparent;
+            color: var(--red);
+            border: 2px solid var(--red);
+        }
+
+        .btn-danger:hover {
+            background: var(--red);
+            color: var(--white);
+        }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 22, 40, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--white);
+            border-radius: 16px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--gray-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--navy);
+        }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: var(--gray-lighter);
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            font-size: 1.25rem;
+        }
+
+        .modal-close:hover {
+            background: var(--orange);
+            color: var(--white);
+            transform: rotate(90deg);
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            color: var(--navy);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-input,
+        .form-select {
+            width: 100%;
+            padding: 0.875rem;
+            border: 2px solid var(--gray-light);
+            border-radius: 8px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+        }
+
+        .form-input:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: var(--orange);
+            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+        }
+
+        .btn-full {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .analytics-section {
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-placeholder {
+            height: 300px;
+            background: var(--gray-lighter);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gray);
+            font-size: 0.95rem;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .admin-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .user-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="shell">
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-text">FleetFlow</div>
+                <div class="logo-subtitle">Painel Admin</div>
+            </div>
+            <nav>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="#" class="nav-link active">
+                            <span class="nav-icon">📊</span>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <span class="nav-icon">👥</span>
+                            Usuários
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <span class="nav-icon">💰</span>
+                            Financeiro
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <span class="nav-icon">📈</span>
+                            Relatórios
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <span class="nav-icon">⚙️</span>
+                            Configurações
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <div class="nav-footer">
+                <a href="operador.html" class="nav-footer-link">
+                    <span class="nav-icon">📦</span>
+                    Dashboard Operador
+                </a>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="topbar">
+                <h1 class="topbar-title">Painel Administrativo</h1>
+                <div class="topbar-user">
+                    <div class="notification-badge">
+                        <span>🔔</span>
+                    </div>
+                    <div class="user-avatar">AD</div>
+                </div>
+            </div>
+
+            <div class="content-area">
+                <div class="admin-grid">
+                    <div class="revenue-card">
+                        <div class="revenue-label">Receita Estimada (Hoje)</div>
+                        <div class="revenue-value">R$ 2.847</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Total de Entregas Hoje</div>
+                        <div class="stat-value">47</div>
+                        <div class="stat-change positive">
+                            ↗ +12% vs ontem
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Entregadores Ativos</div>
+                        <div class="stat-value">8</div>
+                        <div class="stat-change positive">
+                            ✓ Todos em rota
+                        </div>
+                    </div>
+                </div>
+
+                <div class="analytics-section">
+                    <h2 class="section-title" style="margin-bottom: 1rem;">Visão Geral Semanal</h2>
+                    <div class="chart-placeholder">
+                        📊 Gráfico de entregas (integração com Chart.js ou similar)
+                    </div>
+                </div>
+
+                <div class="user-management">
+                    <div class="section-header">
+                        <h2 class="section-title">Gestão de Usuários</h2>
+                        <button class="btn btn-primary" onclick="openModal('new-user-modal')">+ Novo Usuário</button>
+                    </div>
+                    <div class="search-bar">
+                        <input type="text" class="search-input" placeholder="Buscar usuário..." id="user-search" oninput="filterUsers()">
+                    </div>
+                    <ul class="user-list" id="user-list">
+                        <li class="user-item" data-name="carlos santos" data-role="driver">
+                            <div class="user-details">
+                                <div class="user-icon">CS</div>
+                                <div class="user-info">
+                                    <h4>Carlos Santos <span class="user-role role-driver">Entregador</span></h4>
+                                    <p>carlos.santos@fleetflow.com • Ativo</p>
+                                </div>
+                            </div>
+                            <div class="user-actions">
+                                <button class="btn btn-ghost btn-sm" onclick="resetPassword('carlos.santos@fleetflow.com')">🔑 Reset Senha</button>
+                                <button class="btn btn-secondary btn-sm" onclick="editUser('Carlos Santos')">✏️ Editar</button>
+                            </div>
+                        </li>
+                        <li class="user-item" data-name="ana costa" data-role="driver">
+                            <div class="user-details">
+                                <div class="user-icon">AC</div>
+                                <div class="user-info">
+                                    <h4>Ana Costa <span class="user-role role-driver">Entregador</span></h4>
+                                    <p>ana.costa@fleetflow.com • Ativo</p>
+                                </div>
+                            </div>
+                            <div class="user-actions">
+                                <button class="btn btn-ghost btn-sm" onclick="resetPassword('Ana Costa')">🔑 Reset Senha</button>
+                                <button class="btn btn-secondary btn-sm" onclick="editUser('ana.costa@fleetflow.com')">✏️ Editar</button>
+                            </div>
+                        </li>
+                        <li class="user-item" data-name="roberto lima" data-role="driver">
+                            <div class="user-details">
+                                <div class="user-icon">RL</div>
+                                <div class="user-info">
+                                    <h4>Roberto Lima <span class="user-role role-driver">Entregador</span></h4>
+                                    <p>roberto.lima@fleetflow.com • Ativo</p>
+                                </div>
+                            </div>
+                            <div class="user-actions">
+                                <button class="btn btn-ghost btn-sm" onclick="resetPassword('Roberto Lima')">🔑 Reset Senha</button>
+                                <button class="btn btn-secondary btn-sm" onclick="editUser('roberto.lima@fleetflow.com')">✏️ Editar</button>
+                            </div>
+                        </li>
+                        <li class="user-item" data-name="joão dias" data-role="operator">
+                            <div class="user-details">
+                                <div class="user-icon">JD</div>
+                                <div class="user-info">
+                                    <h4>João Dias <span class="user-role role-operator">Operador</span></h4>
+                                    <p>joao.dias@fleetflow.com • Ativo</p>
+                                </div>
+                            </div>
+                            <div class="user-actions">
+                                <button class="btn btn-ghost btn-sm" onclick="resetPassword('João Dias')">🔑 Reset Senha</button>
+                                <button class="btn btn-primary btn-sm" onclick="promoteUser('João Dias')">⬆️ Promover</button>
+                                <button class="btn btn-secondary btn-sm" onclick="editUser('joao.dias@fleetflow.com')">✏️ Editar</button>
+                            </div>
+                        </li>
+                        <li class="user-item" data-name="mariana silva" data-role="operator">
+                            <div class="user-details">
+                                <div class="user-icon">MS</div>
+                                <div class="user-info">
+                                    <h4>Mariana Silva <span class="user-role role-operator">Operador</span></h4>
+                                    <p>mariana.silva@fleetflow.com • Ativo</p>
+                                </div>
+                            </div>
+                            <div class="user-actions">
+                                <button class="btn btn-ghost btn-sm" onclick="resetPassword('Mariana Silva')">🔑 Reset Senha</button>
+                                <button class="btn btn-primary btn-sm" onclick="promoteUser('Mariana Silva')">⬆️ Promover</button>
+                                <button class="btn btn-secondary btn-sm" onclick="editUser('mariana.silva@fleetflow.com')">✏️ Editar</button>
+                            </div>
+                        </li>
+                        <li class="user-item" data-name="fernanda souza" data-role="driver">
+                            <div class="user-details">
+                                <div class="user-icon">FS</div>
+                                <div class="user-info">
+                                    <h4>Fernanda Souza <span class="user-role role-driver">Entregador</span></h4>
+                                    <p>fernanda.souza@fleetflow.com • Ativo</p>
+                                </div>
+                            </div>
+                            <div class="user-actions">
+                                <button class="btn btn-ghost btn-sm" onclick="resetPassword('Fernanda Souza')">🔑 Reset Senha</button>
+                                <button class="btn btn-secondary btn-sm" onclick="editUser('fernanda.souza@fleetflow.com')">✏️ Editar</button>
+                            </div>
+                        </li>
+                        <li class="user-item" data-name="marcos oliveira" data-role="driver">
+                            <div class="user-details">
+                                <div class="user-icon">MO</div>
+                                <div class="user-info">
+                                    <h4>Marcos Oliveira <span class="user-role role-driver">Entregador</span></h4>
+                                    <p>marcos.oliveira@fleetflow.com • Ativo</p>
+                                </div>
+                            </div>
+                            <div class="user-actions">
+                                <button class="btn btn-ghost btn-sm" onclick="resetPassword('Marcos Oliveira')">🔑 Reset Senha</button>
+                                <button class="btn btn-secondary btn-sm" onclick="editUser('marcos.oliveira@fleetflow.com')">✏️ Editar</button>
+                            </div>
+                        </li>
+                        <li class="user-item" data-name="paulo santos" data-role="driver">
+                            <div class="user-details">
+                                <div class="user-icon">PS</div>
+                                <div class="user-info">
+                                    <h4>Paulo Santos <span class="user-role role-driver">Entregador</span></h4>
+                                    <p>paulo.santos@fleetflow.com • Ativo</p>
+                                </div>
+                            </div>
+                            <div class="user-actions">
+                                <button class="btn btn-ghost btn-sm" onclick="resetPassword('Paulo Santos')">🔑 Reset Senha</button>
+                                <button class="btn btn-secondary btn-sm" onclick="editUser('paulo.santos@fleetflow.com')">✏️ Editar</button>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal: Novo Usuário -->
+    <div id="new-user-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Novo Usuário</h3>
+                <button class="modal-close" onclick="closeModal('new-user-modal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <form onsubmit="createUser(event)">
+                    <div class="form-group">
+                        <label class="form-label">Nome</label>
+                        <input type="text" class="form-input" placeholder="Digite o nome completo" required id="inome">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Sobrenome</label>
+                        <input type="password" class="form-input" placeholder="Digite o nome completo" required id="isobre">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-input" placeholder="usuario@fleetflow.com" required id="iemail">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">CPF</label>
+                        <input type="text" class="form-input" placeholder="Digite o nome completo" required id="icpf">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Endereço</label>
+                        <input type="text" class="form-input" placeholder="Digite o nome completo" required id="iendereco">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Telefone</label>
+                        <input type="tel" class="form-input" placeholder="Digite o nome completo" required id="itel">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Função</label>
+                        <select class="form-select" required>
+                            <option value="" onclick="setFunctionValue()">Selecione...</option>
+                            <option value="admin" onclick="setFunctionValue('ADMIN')">Administrador</option>
+                            <option value="operator" onclick="setFunctionValue('OPERATOR')">Operador</option>
+                            <option value="driver" onclick="setFunctionValue('DELIVERY_MAN')">Entregador</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full">Criar Usuário</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Editar Usuário -->
+    <div id="edit-user-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Editar Usuário</h3>
+                <button class="modal-close" onclick="closeModal('edit-user-modal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <form onsubmit="updateUser(event)">
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-input" id="edit-email" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Função</label>
+                        <select class="form-select" id="edit-role" required>
+                            <option value="admin" onclick="setFunctionValue('ADMIN')">Administrador</option>
+                            <option value="operator" onclick="setFunctionValue('OPERATOR')">Operador</option>
+                            <option value="driver" onclick="setFunctionValue('DELIVERY_MAN')">Entregador</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Status</label>
+                        <select class="form-select" id="edit-status" required>
+                            <option value="active" onclick="setValue('active')">Ativo</option>
+                            <option value="inactive" onclick="setValue('inactive')">Inativo</option>
+                        </select>
+                    </div>
+                    <div style="display: flex; gap: 0.75rem;">
+                        <button type="submit" class="btn btn-primary btn-full">Salvar Alterações</button>
+                        <button type="button" class="btn btn-danger btn-full" onclick="deleteUser()">Excluir</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = "http://localhost:3000/api";
+
+        let functionValue;
+        let userEmail;
+        let statusValue;
+        // Modal functions
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Fechar modal ao clicar fora
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.remove('active');
+                }
+            });
+        });
+
+        // Criar usuário
+        function createUser() {
+            registerUser();
+            alert('Usuário criado com sucesso! ✓');
+            closeModal('new-user-modal');
+            document.querySelector('#new-user-modal form').reset();
+        }
+
+        // Editar usuário
+        function editUser(email) {
+            document.getElementById('edit-name').value = userName;
+            document.getElementById('edit-email').value = userName.toLowerCase().replace(' ', '.') + '@fleetflow.com';
+            openModal('edit-user-modal');
+            userEmail = email;
+        }
+
+        // Atualizar usuário
+        function updateUser() {
+            editUser()
+            alert('Usuário atualizado com sucesso! ✓');
+            closeModal('edit-user-modal');
+        }
+
+        // Deletar usuário
+        function deleteUser() {
+            if (confirm('Tem certeza que deseja excluir este usuário?')) {
+                alert('Usuário excluído com sucesso! ✓');
+                closeModal('edit-user-modal');
+            }
+        }
+
+        // Reset senha
+        function resetPassword(userName) {
+            if (confirm(`Deseja resetar a senha de ${userName}?`)) {
+                alert(`Nova senha enviada para o email de ${userName}! ✓`);
+            }
+        }
+
+        // Promover usuário
+        function promoteUser(userName) {
+            if (confirm(`Deseja promover ${userName} a Administrador?`)) {
+                alert(`${userName} promovido com sucesso! ✓`);
+            }
+        }
+
+        // Filtrar usuários
+        function filterUsers() {
+            const searchTerm = document.getElementById('user-search').value.toLowerCase();
+            const users = document.querySelectorAll('.user-item');
+
+            users.forEach(user => {
+                const name = user.dataset.name;
+                const role = user.dataset.role;
+                const matches = name.includes(searchTerm) || role.includes(searchTerm);
+                user.style.display = matches ? 'flex' : 'none';
+            });
+        }
+
+        // Funções auxiliares
+        function setFunctionValue(value){
+            functionValue = value;
+        }
+        function setValue(value){
+            statusValue = value;
+        }
+
+        // Funções com conexão com a API
+        async function registerUser(e){
+            e.preventDefault();
+            try{
+                const nome = document.getElementById('inome').value;
+                const sobrenome = document.getElementById('isobre').value;
+                const email = document.getElementById('iemail').value;
+                const senha = document.getElementById('isenha').value;
+                const cpf = document.getElementById('icpf').value.replace(/\D/g, '');
+                const endereco = document.getElementById('iendereco').value;
+                const telefone = document.getElementById('itel').value;
+                const funcao = functionValue;
+
+
+                document.getElementById('icpf').addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length <= 11) {
+                    value = value.replace(/(\d{3})(\d)/, '$1.$2');
+                    value = value.replace(/(\d{3})(\d)/, '$1.$2');
+                    value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+                }
+                e.target.value = value;
+            });
+
+            document.getElementById('itele').addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length <= 11) {
+                    value = value.replace(/(\d{2})(\d)/, '($1) $2');
+                    value = value.replace(/(\d{5})(\d)/, '$1-$2');
+                }
+                e.target.value = value;
+            });
+
+            if(!nome || !sobrenome || !email || !senha || !cpf || !endereco || !telefone || !funcao){
+                alert("Preencha todos os campos requisitados")
+                return;
+            }
+
+            const res = await fetch(`${API_URL}/auth/create`, {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    name: nome,
+                    surname: sobrenome,
+                    email: email,
+                    password: senha,
+                    cpf: cpf,
+                    address: endereco,
+                    phone: telefone,
+                    role: funcao
+                })
+            });
+            const data = await res.json();
+            if(!res.ok){
+                alert("Erro para criar usuário");
+                console.log("Erro: ", data.error);
+                return;
+            }
+            }catch(error){
+                console.log("Erro: ", error);
+                return;
+            }
+        }
+        async function editUser(e){
+            e.preventDefault();
+            try{
+                const email = userEmail;
+                const newEmail = document.getElementById('edit-email').value;
+                const funcao = functionValue;
+                const status = statusValue;
+
+                if(!email || !newEmail || !funcao || !status){
+                    alert("Preencha todos os campos requisitados");
+                    return;
+                }
+                const res = await fetch(`${API_URL}/user/update`, {
+                    method: "POST",
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    email: email,
+                    newEmail: newEmail,
+                    funcao: funcao,
+                    status: status
+                })
+                })
+                const data = await res.json();
+                if(!res.ok){
+                    console.log("Erro: ", data.error);
+                    return;
+                }
+            }catch(error){
+                console.error("Erro: ", error);
+                return;
+            }
+        }
+    </script>
+</body>
+</html>

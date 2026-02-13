@@ -13,7 +13,6 @@ export async function create(req, res){
         if(existingCrv){
             return res.status(400).json({ error: "CRV já registrado" });
         }
-
         const registerVehicle = await prisma.veiculo.create({
             data: {
                 crv,
