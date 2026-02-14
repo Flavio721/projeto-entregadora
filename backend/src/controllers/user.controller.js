@@ -28,31 +28,19 @@ export async function getUserById(req, res) {
 
 export async function updateUser(req, res) {
     try {
-        const userId = parseInt(req.params.id);
-        const { name, surname, email, password, cpf, address, phone } = req.body;
+        const { email, newEmail, funcao, status } = req.body;
         const existingEmail = await prisma.user.findUnique({
             where: { email }
         });
-        if (existingEmail && existingEmail.id !== userId) {
+        if (existingEmail) {
             return res.status(400).json({ error: "Email já cadastrado" });
         }
-        const existingCpf = await prisma.user.findUnique({
-            where: { cpf }
-        });
-        if (existingCpf && existingCpf.id !== userId) {
-            return res.status(400).json({ error: "CPF já cadastrado" });
-        }
-        const hashedPassword = await bcrypt.hash(password, 10);
         const updatedUser = await prisma.user.update({
-            where: { id: userId },
+            where: { email: email },
             data: {
-                name,
-                surname,
-                email,
-                password: hashedPassword,
-                cpf,
-                address,
-                phone
+                email: newEmail,
+                role: funcao,
+                user_status: status
             }
         });
         res.json(updatedUser);
@@ -80,5 +68,26 @@ export async function me(req, res){
         res.json(user);
     } catch (error) {
         res.status(500).json({ error: "Erro ao obter informações do usuário" });
+    }
+}
+export async function deleteUser(req, res){
+    try{
+        const { emailUser }= req.body;
+
+        const existingEmail = await prisma.user.findUnique({
+            where: { email: emailUser}
+        });
+
+        if(!existingEmail){
+            return res.status(404).json({ error: "Usuário não encontrado" });
+        }
+        const userDeleted = await prisma.user.delete({
+            where: { email: emailUser}
+        });
+
+        return res.json({ message: "Usuário deletado" });
+    }catch(error){
+        console.error("Erro: ", error);
+        return res.status(500).json({ error: "Erro ao deletar usuário" });
     }
 }

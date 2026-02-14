@@ -26,6 +26,10 @@ enum DeliveryManStatus{
     UNAVALIABLE
     AVALIABLE
 }
+enum Status{
+  ACTIVE
+  INACTIVE
+}
 model User {
   id        Int     @id @default(autoincrement())
   name      String
@@ -35,6 +39,7 @@ model User {
   cpf       String? @unique
   address   String?
   phone     String?
+  user_status   Status @default(ACTIVE)
   role      Role    @default(DELIVERY_MAN)
   status    DeliveryManStatus?
 

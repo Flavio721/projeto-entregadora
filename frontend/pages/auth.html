@@ -38,7 +38,7 @@
             justify-content: center;
             padding: 1rem;
             position: relative;
-            overflow: hidden;
+            overflow-x: hidden;
         }
 
         body::before {
@@ -51,18 +51,6 @@
             right: -200px;
             border-radius: 50%;
             animation: pulse 8s ease-in-out infinite;
-        }
-
-        body::after {
-            content: '';
-            position: absolute;
-            width: 400px;
-            height: 400px;
-            background: radial-gradient(circle, rgba(6, 214, 160, 0.08) 0%, transparent 70%);
-            bottom: -150px;
-            left: -150px;
-            border-radius: 50%;
-            animation: pulse 6s ease-in-out infinite reverse;
         }
 
         @keyframes pulse {
@@ -83,6 +71,7 @@
             overflow: hidden;
             max-width: 1000px;
             width: 100%;
+            height: 100%;
             display: grid;
             grid-template-columns: 1fr 1fr;
             position: relative;
@@ -639,27 +628,21 @@
             <!-- Login Form -->
             <form id="login-form" class="auth-form active" onsubmit="handleLogin(event)">
                 <div class="form-group">
-                    <label class="form-label">Email</label>
-                    <input type="email" class="form-input" placeholder="seu@email.com" required>
+                    <label class="form-label" for="iemail">Email</label>
+                    <input type="email" class="form-input" placeholder="seu@email.com" required id="iemail">
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Senha</label>
+                    <label class="form-label" for="ipassword">Senha</label>
                     <div class="password-wrapper">
-                        <input type="password" class="form-input" id="login-password" placeholder="••••••••" required>
+                        <input type="password" class="form-input" id="ipassword" placeholder="••••••••" required>
                         <button type="button" class="toggle-password" onclick="togglePassword('login-password', this)">
                             👁️
                         </button>
                     </div>
                 </div>
 
-                <div class="form-remember">
-                    <div class="checkbox-wrapper">
-                        <input type="checkbox" id="remember">
-                        <label for="remember">Lembrar de mim</label>
-                    </div>
                     <a href="#" class="forgot-link">Esqueci a senha</a>
-                </div>
 
                 <button type="submit" class="btn btn-primary">
                     Entrar
@@ -695,23 +678,33 @@
             <!-- Register Form -->
             <form id="register-form" class="auth-form" onsubmit="handleRegister(event)">
                 <div class="form-group">
-                    <label class="form-label">Nome Completo</label>
-                    <input type="text" class="form-input" placeholder="Seu nome completo" required>
+                    <label class="form-label">Nome</label>
+                    <input type="text" class="form-input" placeholder="Seu nome" required id="inome">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Sobrenome</label>
+                    <input type="text" class="form-input" placeholder="Seu sobrenome" required id="isobre">
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Email</label>
-                    <input type="email" class="form-input" placeholder="seu@email.com" required>
+                    <input type="email" class="form-input" placeholder="seu@email.com" required id="email">
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Tipo de Conta</label>
-                    <select class="form-select" required>
-                        <option value="">Selecione...</option>
-                        <option value="admin">Administrador</option>
-                        <option value="operator">Operador</option>
-                        <option value="driver">Entregador</option>
-                    </select>
+                    <label class="form-label">CPF</label>
+                    <input type="text" class="form-input" placeholder="123.456.789-10" required id="icpf">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Endereço</label>
+                    <input type="text" class="form-input" placeholder="Rua A, Bairro B, Cidade-Estado" required id="iendereco">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Telefone</label>
+                    <input type="tel" class="form-input" placeholder="(11) 12345-6789" required id="itel">
                 </div>
 
                 <div class="form-group">
@@ -777,6 +770,8 @@
     </div>
 
     <script>
+        const API_URL = "http://localhost:3000/api";
+        let dataUser;
         // Switch between tabs
         function switchTab(tab) {
             // Update tabs
@@ -811,24 +806,49 @@
         }
 
         // Handle login
-        function handleLogin(event) {
+        async function handleLogin(event) {
             event.preventDefault();
             
             // Simular login (em produção, fazer requisição ao backend)
-            const email = event.target.querySelector('input[type="email"]').value;
-            
+            const email = document.getElementById("iemail").value;
+            const senha = document.getElementById("ipassword").value;
+
+            try{
+                const res = await fetch(`${API_URL}/auth/login`, {
+                    method: "POST",
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: "include",
+                    body: JSON.stringify({
+                        email: email,
+                        password: senha,
+                    })
+                })
+                const data = await res.json();
+                if(!res.ok){
+                    console.log("Erro: ", data.error);
+                    return;
+                }
+                alert("Login realizado com sucesso!");
+                dataUser = data.user
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('user', JSON.stringify(data.user));
+            }catch(error){
+                console.log("Erro: ", error);
+            }
             // Demo: redirecionar baseado no email
-            if (email.includes('admin')) {
-                window.location.href = 'admin.html';
-            } else if (email.includes('entregador')) {
-                window.location.href = 'entregador.html';
+            if (dataUser.role === "ADMIN") {
+                window.location.href = '/dashboardAdmin';
+            } else if (dataUser.role === "OPERADOR") {
+                window.location.href = '/dashboardOperador';
             } else {
-                window.location.href = 'operador.html';
+                window.location.href = '/dashboardEntregador';
             }
         }
 
         // Handle register
-        function handleRegister(event) {
+        async function handleRegister(event) {
             event.preventDefault();
             
             const password = document.getElementById('register-password').value;
@@ -841,6 +861,57 @@
                 return;
             }
             
+            try{
+                const nome = document.getElementById("inome").value;
+                const sobrenome = document.getElementById("isobre").value
+                const email = document.getElementById("email").value
+                const cpf = document.getElementById('icpf').value
+                const endereco = document.getElementById("iendereco").value
+                const telefone = document.getElementById('itel').value
+
+                document.getElementById('icpf').addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length <= 11) {
+                    value = value.replace(/(\d{3})(\d)/, '$1.$2');
+                    value = value.replace(/(\d{3})(\d)/, '$1.$2');
+                    value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+                }
+                e.target.value = value;
+            });
+
+            document.getElementById('itel').addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length <= 11) {
+                    value = value.replace(/(\d{2})(\d)/, '($1) $2');
+                    value = value.replace(/(\d{5})(\d)/, '$1-$2');
+                }
+                e.target.value = value;
+            });
+
+            const res = await fetch(`${API_URL}/auth/register`, {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    name: nome,
+                    surname: sobrenome,
+                    email: email,
+                    password: password,
+                    cpf: cpf,
+                    address: endereco,
+                    phone: telefone
+                })
+            });
+            const data = await res.json();
+            if(!res.ok){
+                console.error("Erro: ", data.error);
+                return;
+            }
+            }catch(error){
+                console.error("Erro: ", error);
+                return;
+            }
             // Mostrar mensagem de sucesso
             const successAlert = document.getElementById('alert-success');
             successAlert.classList.add('active');
