@@ -133,3 +133,25 @@ export async function createUser(req, res){
         return res.status(500).json({ error: "Erro ao criar usuário" });
     }
 }
+export async function me(req, res, next) {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: req.user.id },
+      select: {
+        id: true,
+        name: true,
+        surname: true,
+        email: true,
+        cpf: true,
+        phone: true,
+        address: true,
+        role: true,
+        avatarUrl: true,
+      },
+    });
+    res.json({ user });
+  } catch (error) {
+    console.error("Erro: ", error);
+    return res.status(500).json({ error: "Erro ao buscar informações do usuário" });
+  }
+}

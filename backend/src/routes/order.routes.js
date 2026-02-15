@@ -1,7 +1,7 @@
 import express from 'express';
 import { authMiddleware } from '../middlewares/auth.js';
-import { checkRole, isDeliveryMan, isOperator } from '../middlewares/roles.js';
-import { createEntrega, getOrders, getTodayOrders } from '../controllers/entrega.controller.js';
+import { checkRole, isAdmin, isDeliveryMan, isOperator } from '../middlewares/roles.js';
+import { adminOrdersData, createEntrega, getOrders, getTodayOrders } from '../controllers/entrega.controller.js';
 
 const router = express.Router();
 
@@ -9,6 +9,8 @@ const router = express.Router();
 // Rotas de obtenção de dados
 router.get("/", authMiddleware, checkRole("OPERATOR", "ADMIN"), getOrders);
 
+// Rota do admin
+router.get("/dashboard", authMiddleware, isAdmin, adminOrdersData)
 // Rotas do operador
 router.post("/create", authMiddleware, isOperator, createEntrega);
 

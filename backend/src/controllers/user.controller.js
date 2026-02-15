@@ -4,10 +4,41 @@ const prisma = new PrismaClient();
 
 export async function getUsers(req, res) {
     try {
-        const users = await prisma.user.findMany();
-        res.json(users);
+        const currentUserId = req.user.id;
+        const users = await prisma.user.findMany({
+            where: {
+                id: {
+                    not: currentUserId
+                }
+            },
+            select: {
+                id: true,
+                name: true,
+                surname: true,
+                email: true,
+                cpf: true,
+                address: true,
+                phone: true,
+                user_status: true,
+                role: true,
+                status: true,
+                type_vehicle: true
+                // ⭐ Não incluir password
+            },
+            orderBy: {
+                id: 'asc'
+            }
+        });
+        
+        // ⭐ CORREÇÃO: Retornar objeto com propriedade 'users'
+        return res.status(200).json({ 
+            users,
+            count: users.length 
+        });
+        
     } catch (error) {
-        res.status(500).json({ error: "Erro ao obter usuários" });
+        console.error("Erro ao obter usuários:", error);
+        return res.status(500).json({ error: "Erro ao obter usuários" });
     }  
 }
 
@@ -48,41 +79,19 @@ export async function updateUser(req, res) {
         res.status(500).json({ error: "Erro ao atualizar usuário" });
     }  
 }
-export async function me(req, res){
-    try{
-        const userId = req.user.id;
-
-        const user = await prisma.user.findUnique({
-            where: { id: userId },
-            select: {
-                id: true,
-                name: true,
-                surname: true,
-                email: true,
-                cpf: true,
-                address: true,
-                phone: true,
-                role: true
-            }
-        });
-        res.json(user);
-    } catch (error) {
-        res.status(500).json({ error: "Erro ao obter informações do usuário" });
-    }
-}
 export async function deleteUser(req, res){
     try{
-        const { emailUser }= req.body;
+        const { email }= req.body;
 
         const existingEmail = await prisma.user.findUnique({
-            where: { email: emailUser}
+            where: { email: email}
         });
 
         if(!existingEmail){
             return res.status(404).json({ error: "Usuário não encontrado" });
         }
         const userDeleted = await prisma.user.delete({
-            where: { email: emailUser}
+            where: { email: email}
         });
 
         return res.json({ message: "Usuário deletado" });

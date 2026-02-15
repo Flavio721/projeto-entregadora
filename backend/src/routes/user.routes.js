@@ -9,7 +9,7 @@ router.get("/", authMiddleware, isAdmin, getUsers);
 
 
 router.post("/update", authMiddleware, isAdmin, updateUser);
-router.post("/delete", authMiddleware, isAdmin, deleteUser);
+router.delete("/delete", authMiddleware, isAdmin, deleteUser);
 
 router.get("/delivery-man", authMiddleware, checkRole("ADMIN", "OPERATOR"), getDeliveryMan);
 

@@ -222,7 +222,7 @@ export async function getOrders(req, res){
 export async function getTodayOrders(req, res) {
     try {
         const { status } = req.query;
-        
+        let soma;
         // ⭐ Definir intervalo do dia (00:00:00 até 23:59:59)
         const startOfDay = new Date();
         startOfDay.setHours(0, 0, 0, 0);
@@ -295,14 +295,129 @@ export async function getTodayOrders(req, res) {
                 where: whereClause
             })
         ]);
-
         return res.json({
             orders: todayOrders,
-            count: countOrders
+            count: countOrders,
         });
 
     } catch (error) {
         console.error("Erro ao buscar entregas:", error);
         return res.status(500).json({ error: "Erro ao buscar entregas" });
+    }
+}
+export async function adminOrdersData(req, res){
+    try{
+        // ⭐ CORREÇÃO 1: Inicializar variáveis em 0
+        let somaTotal = 0;
+        let somaDiaria = 0;
+
+        // Definir intervalo do dia
+        const startOfDay = new Date();
+        startOfDay.setHours(0, 0, 0, 0);
+        
+        const endOfDay = new Date();
+        endOfDay.setHours(23, 59, 59, 999);
+
+        // ⭐ OTIMIZAÇÃO: Executar queries em paralelo com Promise.all
+        const [
+            totalOrders,
+            todayOrders,
+            countTodayOrders,
+            activeDrivers,
+            onTimeDeliveriesResult
+        ] = await Promise.all([
+            // 1. Buscar todos os pedidos (para receita total)
+            prisma.pedido.findMany({
+                select: {
+                    valor: true
+                }
+            }),
+            
+            // 2. Buscar pedidos de hoje
+            prisma.pedido.findMany({
+                where: {
+                    delivered_date: {
+                        gte: startOfDay,
+                        lte: endOfDay
+                    }
+                },
+                select: {
+                    valor: true
+                }
+            }),
+            
+            // 3. Contar pedidos de hoje
+            prisma.pedido.count({
+                where: {
+                    delivered_date: {
+                        gte: startOfDay,
+                        lte: endOfDay
+                    }
+                }
+            }),
+            
+            // 4. Contar entregadores ativos
+            prisma.user.count({
+                where: { 
+                    status: 'AVALIABLE' // ⚠️ Verificar: está escrito "AVALIABLE" mesmo ou "AVAILABLE"?
+                }
+            }),
+            
+            // 5. Contar entregas no prazo (GERAL, não só hoje)
+            prisma.$queryRaw`
+                SELECT COUNT(*) as count
+                FROM "Pedido"
+                WHERE status = 'DELIVERED'
+                AND delivered_date <= estimated_date
+            `
+        ]);
+
+        // Calcular receita total
+        totalOrders.forEach((order) => {
+            somaTotal += order.valor;
+        });
+
+        // Calcular receita diária
+        todayOrders.forEach((order) => {
+            somaDiaria += order.valor;
+        });
+
+        // ⭐ CORREÇÃO 2: Converter BigInt para Number
+        const onTimeCount = Number(onTimeDeliveriesResult[0].count);
+
+        // Contar total de entregas finalizadas (para calcular taxa)
+        const totalDelivered = await prisma.pedido.count({
+            where: { status: 'DELIVERED' }
+        });
+
+        // Calcular taxa de entrega no prazo (porcentagem)
+        const rateOnTimeOrders = totalDelivered > 0 
+            ? ((onTimeCount / totalDelivered) * 100).toFixed(2) 
+            : 0;
+
+        // Calcular ticket médio
+        const totalOrdersCount = totalOrders.length;
+        const averageTicket = totalOrdersCount > 0 
+            ? (somaTotal / totalOrdersCount).toFixed(2) 
+            : 0;
+
+        // ⭐ CORREÇÃO 3: Retornar status 200, não 400
+        return res.status(200).json({ 
+            today: {
+                revenue: parseFloat(somaDiaria.toFixed(2)),
+                count: countTodayOrders,
+                activeDrivers: activeDrivers
+            },
+            global: {
+                onTimeRate: parseFloat(rateOnTimeOrders),
+                averageTicket: parseFloat(averageTicket),
+                totalRevenue: parseFloat(somaTotal.toFixed(2)),
+                totalOrders: totalOrdersCount
+            }
+        });
+
+    }catch(error){
+        console.error("Erro ao buscar dados admin:", error);
+        return res.status(500).json({ error: "Erro ao buscar dados administrativos" });
     }
 }

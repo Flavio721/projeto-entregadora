@@ -637,6 +637,56 @@
             color: var(--gray);
             font-size: 0.95rem;
         }
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: var(--white);
+            border-radius: 12px;
+            margin: 1.5rem;
+            animation: fadeInUp 0.6s ease;
+        }
+
+        .empty-icon {
+            font-size: 5rem;
+            margin-bottom: 1.5rem;
+            opacity: 0.3;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .empty-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--navy);
+            margin-bottom: 0.75rem;
+        }
+
+        .empty-text {
+            font-size: 1rem;
+            color: var(--gray);
+            max-width: 400px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
         @media (max-width: 768px) {
             .sidebar {
@@ -713,7 +763,7 @@
                     <div class="notification-badge">
                         <span>🔔</span>
                     </div>
-                    <div class="user-avatar">AD</div>
+                    <div class="user-avatar" id="avatar">AD</div>
                 </div>
             </div>
 
@@ -721,21 +771,30 @@
                 <div class="admin-grid">
                     <div class="revenue-card">
                         <div class="revenue-label">Receita Estimada (Hoje)</div>
-                        <div class="revenue-value">R$ 2.847</div>
+                        <div class="revenue-value" id="stat-revenue">ERRO</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-label">Total de Entregas Hoje</div>
-                        <div class="stat-value">47</div>
+                        <div class="stat-value" id="stat-orders">ERRO</div>
                         <div class="stat-change positive">
                             ↗ +12% vs ontem
                         </div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-label">Entregadores Ativos</div>
-                        <div class="stat-value">8</div>
+                        <div class="stat-value" id="stat-drivers">ERRO</div>
                         <div class="stat-change positive">
                             ✓ Todos em rota
                         </div>
+                    </div>
+                    <div class="revenue-card">
+                        <div class="revenue-label">Taxa de entrega no prazo</div>
+                        <div class="revenue-value"     id="stat-rate">ERRO</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="revenue-label">Ticket médio por entregas</div>
+                        <div class="stat-value"     id="stat-ticket">ERRO</div>
+                        <!-- Receita total / Total de pedidos -->
                     </div>
                 </div>
 
@@ -857,6 +916,15 @@
         let functionValue;
         let userEmail;
         let statusValue;
+        window.addEventListener('DOMContentLoaded', () => {
+            loadData();
+        });
+        // Dados dos veículos
+        function loadData(){
+            getAdminOrdersData();
+            loadUsers();
+            loadAdminData()
+        }
         // Modal functions
         function openModal(modalId) {
             document.getElementById(modalId).classList.add('active');
@@ -917,7 +985,8 @@
             const res = await fetch(`${API_URL}/auth/create`, {
                 method: "POST",
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({
                     name: nome,
@@ -948,8 +1017,6 @@
 
         // Editar usuário
         function editUser(email) {
-            document.getElementById('edit-name').value = userName;
-            document.getElementById('edit-email').value = userName.toLowerCase().replace(' ', '.') + '@fleetflow.com';
             openModal('edit-user-modal');
             userEmail = email;
         }
@@ -970,7 +1037,8 @@
                 const res = await fetch(`${API_URL}/users/update`, {
                     method: "POST",
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
                     },
                     body: JSON.stringify({
                         email: email,
@@ -997,9 +1065,10 @@
             if (confirm('Tem certeza que deseja excluir este usuário?')) {
                 try{
                 const res = await fetch(`${API_URL}/users/delete`, {
-                    method: "POST",
+                    method: "DELETE",
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
                     },
                     body: JSON.stringify({
                         email: userEmail
@@ -1055,32 +1124,92 @@
 
         
         // Funções com conexão com a API
+        async function loadAdminData(){
+            try{
+                const res = await fetch(`${API_URL}/auth/me`, {
+                    headers: { 
+                        'Authorization': `Bearer ${token}`
+                    },
+                });
+                const data = await res.json();
+                if(!res.ok){
+                    console.error("Erro: ", data.error);
+                    return;
+                }
+                 const avatar = document.getElementById('avatar');
+            if (data.user.avatarUrl) {
+                avatar.style.backgroundImage =
+                    `url(${data.user.avatarUrl})`;
+                avatar.style.backgroundSize = 'cover';
+                avatar.style.backgroundPosition = 'center';
+                avatar.textContent = '';
+            } else {
+                avatar.textContent = data.user.name.charAt(0).toUpperCase();
+            }
+            }catch (error){
+                console.error("Erro: ", error);
+                return;
+            }
+        }
         async function loadUsers(){
             try{
                 const res = await fetch(`${API_URL}/users/`, {
                     headers: { 
                         'Authorization': `Bearer ${token}`
-                    }
+                    },
+                    credentials: 'include'
                 });
                 const data = await res.json();
                 if(!res.ok){
                     console.log("Erro: ", data.error);
-                    alert("Erro no carregamento de usuário") // Adicionar mensagem de erro qnd tiver badge de erro
+                    alert("Erro no carregamento de usuário")
+                    displayUsers([])
                     return;
                 }
                 displayUsers(data.users);
             }catch(error){
                 console.log("Erro: ", error);
+                displayUsers([])
                 return;
             }
         }
-
+        async function getAdminOrdersData(){
+            try{
+                const res = await fetch(`${API_URL}/orders/dashboard`, {
+                    headers: { 
+                        'Authorization': `Bearer ${token}`
+                    },
+                    credentials: 'include'
+                });
+                const data = await res.json();
+                if(!res.ok){
+                    console.error("Erro: ", data.error);
+                }
+                document.getElementById('stat-revenue').innerText = data.today.revenue;
+                document.getElementById('stat-orders').innerText = data.today.count;
+                document.getElementById('stat-drivers').innerText = data.today.activeDrivers;
+                document.getElementById('stat-rate').innerText = data.global.onTimeRate;
+                document.getElementById('stat-ticket').innerText = data.global.averageTicket;
+            }catch (error) {
+                console.error("Erro: ", error);
+                return;
+            }
+        }
         // Funções de exposição de dados da API
         function displayUsers(users) {
             const grid = document.getElementById('user-list');
             
-            if (users.length === 0) {
-                grid.innerHTML = '<p style="text-align: center; padding: 3rem; grid-column: 1/-1;">Nenhum usuário encontrado.</p>';
+           if (!users || !Array.isArray(users) || users.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">👥</div>
+                        <h3 class="empty-title">Nenhum usuário encontrado</h3>
+                        <p class="empty-text">Comece adicionando o primeiro usuário ao sistema</p>
+                        <button class="btn btn-primary" onclick="openModal('new-user-modal')" style="margin-top: 1.5rem;">
+                            + Adicionar Usuário
+                        </button>
+                    </div>
+                `;
                 return;
             }
 

@@ -43,6 +43,7 @@ model User {
   role      Role    @default(DELIVERY_MAN)
   status    DeliveryManStatus?
   type_vehicle  String?
+  avatarUrl   String?
 
   createdPedidos       Pedido[] @relation("CreatedBy")
   administeredPedidos  Pedido[] @relation("AdministeredBy")
