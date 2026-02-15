@@ -3,6 +3,7 @@ import { verifyToken } from "../utils/jwt.js";
 export function authMiddleware(req, res, next){
     try{
         const authHeaders = req.headers.authorization;
+        const cookieToken = req.cookies?.token;
 
         if(!authHeaders){
             return res.status(401).json({ error: "Token não fornecido" });

@@ -1,11 +1,12 @@
 import  { PrismaClient } from "@prisma/client";
-import { calculateFrete, calculateValue } from "../utils/calculate";
+import { calculateFrete, calculateValue } from "../utils/calculate.js";
 
 const prisma = new PrismaClient();
 
 export async function createEntrega(req, res) {
     try {
-        const { date, creatorId, status, adress, weight, value } = req.body;
+        const { date, address, weight, value, clientCpf, clientName } = req.body;
+        const creatorId = req.user.id;
 
         const finalValue = calculateValue(value, weight);
         const frete = calculateFrete(weight);
@@ -13,12 +14,13 @@ export async function createEntrega(req, res) {
         const entrega = await prisma.pedido.create({
             data: {
                 estimated_date: date,
-                address: adress,
+                address: address,
                 peso: weight,
-                status: status,
                 created_by: creatorId,
                 valor: finalValue,
-                frete: frete
+                frete: frete,
+                clientCpf: clientCpf,
+                clientName: clientName
             }
         });
 
@@ -34,34 +36,7 @@ export async function createEntrega(req, res) {
         return res.status(500).json({ error: "Erro ao criar entrega" });
     }   
 }
-export async function assignOperator(req, res){
-    try{
-        const { orderId, operatorId} = req.body;
-
-        const existingOperator = await prisma.user.findUnique({
-            where: { id: operatorId},
-        });
-
-        if(!existingOperator){
-            return res.status(404).json({ error: "Operador não encontrado"});
-        }
-
-        const updatedOrder = await prisma.pedido.update({
-            where: { id: orderId },
-            data: {
-                administered_by: operatorId
-            }
-        });
-
-        return res.status(200).json({
-            message: "Operador atribuido",
-            updatedOrder
-        })
-    }catch(error){
-        return res.status(500).json({ error: "Erro no sistema" })
-    }
-}
-export async function assignDeliveryMan(req, res){
+export async function assignOrderDetails(req, res){
     try{
         const { orderId, deliveryManId, vehicleId } = req.body;
 
@@ -84,7 +59,8 @@ export async function assignDeliveryMan(req, res){
         const updatedOrder = await prisma.pedido.update({
             where: { id: orderId },
             data: {
-                catched_by: deliveryManId
+                catched_by: deliveryManId,
+                carroId: vehicleId
             }
         });
 
@@ -101,42 +77,6 @@ export async function assignDeliveryMan(req, res){
         })
     }catch(error){
         return res.status(500).json({ error: "Erro no sistema" })
-    }
-}
-export async function assignVehicle(req, res){
-    try{
-        const orderId = req.query;
-        const { nameCar } = req.query;
-
-        const orderExists = await prisma.pedido.findUnique({
-            where: { id: orderId }
-        });
-
-        if(!orderExists){
-            return res.status(404).json({ error: "Pedido não encontrado" });
-        }
-
-        const vehicleExists = await prisma.veiculo.findFirst({
-            where: { nome: nameCar }
-        });
-
-        if(!vehicleExists){
-            return res.status(404).json({ error: "Veículo não encontrado "});
-        }
-
-        if(orderExists.peso > 20 && vehicleExists.tipo === "moto"){
-            return res.status(400).json({ error: "Veículo insuficiente para o peso da carga" });
-        }
-
-        const updateOrder = await prisma.pedido.update({
-            where: { id: orderId },
-            data: {
-               carro: vehicleExists.id 
-            }
-        })
-    }catch(error){
-        console.error("Erro: ", error);
-        return res.status(500).json({ error: "Erro ao atribuir veículo "});
     }
 }
 export async function uploadOrderImage(req, res){
@@ -242,5 +182,127 @@ export async function changeStatus(req, res){
     }catch(error){
         console.error("Erro: ", error);
         return res.status(500).json({ error: "Erro ao alterar status" });
+    }
+}
+export async function getOrders(req, res){
+    try{
+        const { status } = req.query;
+
+        const whereClause = {};
+        
+        if(status){
+            whereClause.status = status.toUpperCase();        
+        }
+
+        const orders = await prisma.pedido.findMany({
+            where: whereClause,
+            include: {
+                catchedBy: {
+                    select: {
+                        name: true,
+                        surname: true,
+                    }
+                },
+            },
+            orderBy: {
+                created_at: 'desc'
+            }
+        });
+
+        return res.status(200).json({ 
+            orders,
+            count: orders.length 
+        });
+
+    }catch (error){
+        console.error("Erro ao buscar pedidos:", error);
+        return res.status(500).json({ error: "Erro ao buscar pedidos" });
+    }
+}
+export async function getTodayOrders(req, res) {
+    try {
+        const { status } = req.query;
+        
+        // ⭐ Definir intervalo do dia (00:00:00 até 23:59:59)
+        const startOfDay = new Date();
+        startOfDay.setHours(0, 0, 0, 0);
+        
+        const endOfDay = new Date();
+        endOfDay.setHours(23, 59, 59, 999);
+
+        // ⭐ Construir filtro dinamicamente
+        const whereClause = {
+            delivered_date: {
+                gte: startOfDay,
+                lte: endOfDay
+            }
+        };
+
+        // ⭐ Adicionar filtro de status se fornecido
+        if (status) {
+            whereClause.status = status.toUpperCase();
+        }
+
+        // ⭐ Buscar pedidos e contar em uma única query
+        const [todayOrders, countOrders] = await Promise.all([
+            prisma.pedido.findMany({
+                where: whereClause,
+                include: {
+                    // ⭐ CORRIGIDO: Usar os nomes corretos das relações
+                    createdBy: {
+                        select: {
+                            id: true,
+                            name: true,
+                            surname: true,
+                            email: true,
+                            role: true
+                        }
+                    },
+                    administeredBy: {
+                        select: {
+                            id: true,
+                            name: true,
+                            surname: true,
+                            email: true,
+                            role: true
+                        }
+                    },
+                    catchedBy: {
+                        select: {
+                            id: true,
+                            name: true,
+                            surname: true,
+                            email: true,
+                            role: true,
+                            type_vehicle: true
+                        }
+                    },
+                    carro: {
+                        select: {
+                            id: true,
+                            nome: true,
+                            marca: true,
+                            tipo: true,
+                            status: true
+                        }
+                    }
+                },
+                orderBy: {
+                    created_at: 'desc'
+                }
+            }),
+            prisma.pedido.count({
+                where: whereClause
+            })
+        ]);
+
+        return res.json({
+            orders: todayOrders,
+            count: countOrders
+        });
+
+    } catch (error) {
+        console.error("Erro ao buscar entregas:", error);
+        return res.status(500).json({ error: "Erro ao buscar entregas" });
     }
 }

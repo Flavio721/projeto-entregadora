@@ -6,7 +6,8 @@ const prisma = new PrismaClient();
 
 export async function registerUser(req, res) {
     try {
-        const { name, surname, email, password, cpf, address, phone, role } = req.body;
+        const { name, surname, email, password, cpf, address, phone, role, typeVehicle } = req.body;
+        
         const existingEmail = await prisma.user.findUnique({
             where: { email }
         });
@@ -20,7 +21,9 @@ export async function registerUser(req, res) {
         if (existingCpf) {
             return res.status(400).json({ error: "CPF já cadastrado" });
         }
+
         const hashedPassword = await bcrypt.hash(password, 10);
+        const checkVehicle = typeVehicle ? typeVehicle.toUpperCase() : null;
 
         const user = await prisma.user.create({
             data: {
@@ -31,8 +34,8 @@ export async function registerUser(req, res) {
                 cpf,
                 address,
                 phone,
-                role: role
-                
+                role: role,
+                type_vehicle: checkVehicle // Vai ser null para ADMIN e OPERATOR
             }
         });
 
@@ -50,6 +53,7 @@ export async function registerUser(req, res) {
         });
 
     } catch (error) {
+        console.error("Erro ao registrar usuário:", error);
         res.status(500).json({ error: "Erro ao registrar usuário" });
     }
 }
@@ -62,6 +66,7 @@ export async function loginUser(req, res){
         });
 
         if(!userExists){
+            console.log("Email: ", email)
             return res.status(404).json({ error: "Cadastro não encontrado" });
         }
 
@@ -82,9 +87,6 @@ export async function loginUser(req, res){
             secure: process.env.NODE_ENV === "production",
             maxAge: 1000 * 60 * 60 * 24
         });
-        console.log("✅ Cookie definido com token:", token);
-        console.log("📍 NODE_ENV:", process.env.NODE_ENV);
-        console.log("🔒 Secure:", process.env.NODE_ENV === "production");
         delete userExists.password;
 
         return res.status(200).json({
@@ -100,13 +102,14 @@ export async function loginUser(req, res){
 
 export async function createUser(req, res){
     try{
-        const { name, surname, email, password, cpf, address, phone, role } = req.body;
+        const { name, surname, email, password, cpf, address, phone, role, typeVehicle } = req.body;
 
         if(!name || !email || !password || !cpf){
             return res.status(400).json({ error: "Campos obrigatórios vazios"});
         }
 
         const hashedPassword = bcrypt.hash(password, 10);
+        const checkVehicle = typeVehicle ? typeVehicle.toUpperCase() : null;
         const create = await prisma.user.create({
             data: {
                 name,
@@ -116,7 +119,8 @@ export async function createUser(req, res){
                 cpf,
                 address,
                 phone,
-                role
+                role,
+                type_vehicle: checkVehicle
             }
         });
 

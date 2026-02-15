@@ -15,7 +15,9 @@ const validate = (req, res, next) => {
 export const authValidation = {
     register: [
     body("name").trim().notEmpty().withMessage("Nome é obrigatório!"),
-    body("email").isEmail().withMessage("Email inválido").normalizeEmail(),
+    body("email").isEmail().withMessage("Email inválido").normalizeEmail({
+        gmail_remove_dots: false
+    }),
     body("password")
       .isLength({ min: 6 })
       .withMessage("Senha deve ter no mínimo 6 caracteres"),
@@ -26,7 +28,7 @@ export const authValidation = {
     validate,
     ],
     login: [
-        body("email").isEmail().withMessage("Email inválido").normalizeEmail(),
+        body("email").isEmail().withMessage("Email inválido"),
         body("password").notEmpty().withMessage("Senha é obrigatória"),
         validate,
     ]

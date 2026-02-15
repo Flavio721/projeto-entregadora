@@ -29,3 +29,13 @@ export async function create(req, res){
         return res.status(500).json({ error: "Erro ao registrar o veículo" })
     }
 }
+export async function list(req, res){
+    try{
+        const vehicles = await prisma.veiculo.findMany();
+
+        return res.json({veiculos: vehicles});
+    }catch(error){
+        console.error("Erro: ", error);
+        return res.status(500).json({ error: "Erro ao buscar carros" });
+    }
+}

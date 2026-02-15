@@ -700,29 +700,29 @@
                 <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-label">Entregas Hoje</div>
-                        <div class="stat-value">47</div>
-                        <div class="stat-change positive">
+                        <div class="stat-value" id="stat-orders">47</div>
+                        <div class="stat-change positive" id="stat-orders">
                             ↗ +12% vs ontem
                         </div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-label">Pendentes</div>
-                        <div class="stat-value">12</div>
-                        <div class="stat-change negative">
+                        <div class="stat-value" id="pending-value">12</div>
+                        <div class="stat-change negative" id="stat-pending">
                             ⚠️ Requer atenção
                         </div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-label">Em Trânsito</div>
-                        <div class="stat-value">18</div>
-                        <div class="stat-change positive">
+                        <div class="stat-value" id="transit-value">18</div>
+                        <div class="stat-change positive" id="stat-transit">
                             ✓ No prazo
                         </div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-label">Entregues</div>
-                        <div class="stat-value">17</div>
-                        <div class="stat-change positive">
+                        <div class="stat-value" id="delivered-value">17</div>
+                        <div class="stat-change positive" id="stat-delivered">
                             ✓ 100% sucesso
                         </div>
                     </div>
@@ -745,6 +745,9 @@
                     <button class="btn btn-primary" onclick="openModal('assign-modal')">
                         + Atribuir Entrega
                     </button>
+                    <button class="btn btn-primary" onclick="openModal('create-modal')">
+                        + Criar Entrega
+                    </button>
                 </div>
 
                 <div class="data-table">
@@ -762,66 +765,6 @@
                             </tr>
                         </thead>
                         <tbody id="deliveries-table">
-                            <tr data-status="transit" data-cpf="123.456.789-00">
-                                <td><strong>#2461</strong></td>
-                                <td>Maria Silva</td>
-                                <td>123.456.789-00</td>
-                                <td>R. das Flores, 123 - Centro</td>
-                                <td>3.5 kg</td>
-                                <td>Carlos Santos</td>
-                                <td><span class="badge badge-transit">Em Trânsito</span></td>
-                                <td><button class="btn btn-secondary btn-sm">Gerenciar</button></td>
-                            </tr>
-                            <tr data-status="delivered" data-cpf="987.654.321-00">
-                                <td><strong>#2462</strong></td>
-                                <td>João Oliveira</td>
-                                <td>987.654.321-00</td>
-                                <td>Av. Principal, 456 - Jardim</td>
-                                <td>2.1 kg</td>
-                                <td>Ana Costa</td>
-                                <td><span class="badge badge-delivered">Entregue</span></td>
-                                <td><button class="btn btn-secondary btn-sm">Gerenciar</button></td>
-                            </tr>
-                            <tr data-status="pending" data-cpf="456.789.123-00">
-                                <td><strong>#2463</strong></td>
-                                <td>Pedro Souza</td>
-                                <td>456.789.123-00</td>
-                                <td>R. do Comércio, 789 - Vila Nova</td>
-                                <td>15.0 kg</td>
-                                <td>-</td>
-                                <td><span class="badge badge-pending">Pendente</span></td>
-                                <td><button class="btn btn-secondary btn-sm">Gerenciar</button></td>
-                            </tr>
-                            <tr data-status="transit" data-cpf="321.654.987-00">
-                                <td><strong>#2464</strong></td>
-                                <td>Ana Paula</td>
-                                <td>321.654.987-00</td>
-                                <td>Av. das Acácias, 321 - Bela Vista</td>
-                                <td>2.1 kg</td>
-                                <td>Roberto Lima</td>
-                                <td><span class="badge badge-transit">Em Trânsito</span></td>
-                                <td><button class="btn btn-secondary btn-sm">Gerenciar</button></td>
-                            </tr>
-                            <tr data-status="pending" data-cpf="789.123.456-00">
-                                <td><strong>#2465</strong></td>
-                                <td>Ricardo Fernandes</td>
-                                <td>789.123.456-00</td>
-                                <td>R. do Sol, 147 - Parque Verde</td>
-                                <td>450.0 kg</td>
-                                <td>-</td>
-                                <td><span class="badge badge-pending">Pendente</span></td>
-                                <td><button class="btn btn-secondary btn-sm">Gerenciar</button></td>
-                            </tr>
-                            <tr data-status="pending" data-cpf="159.753.486-00">
-                                <td><strong>#2466</strong></td>
-                                <td>Lucia Martins</td>
-                                <td>159.753.486-00</td>
-                                <td>R. das Palmeiras, 88 - Alto da Boa Vista</td>
-                                <td>75.0 kg</td>
-                                <td>-</td>
-                                <td><span class="badge badge-pending">Pendente</span></td>
-                                <td><button class="btn btn-secondary btn-sm">Gerenciar</button></td>
-                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -840,7 +783,7 @@
                 <form onsubmit="assignDelivery(event)">
                     <div class="form-group">
                         <label class="form-label">Número do Pedido</label>
-                        <input type="text" class="form-input" placeholder="#2466" value="#2466" readonly>
+                        <input type="text" class="form-input" placeholder="2466" value="2466" readonly>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Peso da Carga (kg)</label>
@@ -866,20 +809,65 @@
         </div>
     </div>
 
-    <script>
-        // Dados dos veículos
-        const vehicles = [
-            { id: 1, name: 'Moto - ABC-1234', capacity: 50, type: 'moto' },
-            { id: 2, name: 'Moto - XYZ-5678', capacity: 50, type: 'moto' },
-            { id: 3, name: 'Van - DEF-5678', capacity: 500, type: 'van' },
-            { id: 4, name: 'Van - QWE-9012', capacity: 500, type: 'van' },
-            { id: 5, name: 'Caminhão - GHI-9012', capacity: 2000, type: 'caminhao' }
-        ];
 
-        const drivers = {
-            moto: ['Carlos Santos', 'Ana Costa'],
-            van: ['Roberto Lima', 'Fernanda Souza'],
-            caminhao: ['Marcos Oliveira', 'Paulo Santos']
+    <!-- Modal de criação de entrega -->
+     <div id="assign-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Criar Nova Entrega</h3>
+                <button class="modal-close" onclick="closeModal('assign-modal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <form onsubmit="createDelivery(event)">
+                    <div class="form-group">
+                        <label class="form-label">Endereço do destino</label>
+                        <input type="text" class="form-input" placeholder="Rua A, Bairo B" id="iend" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Peso da Carga (kg)</label>
+                        <input type="number" class="form-input" placeholder="0.0" step="0.1" id="cargo-weight" required>
+                        <p class="form-help">Insira o peso da carga para validar o veículo apropriado</p>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="ivalor">Valor unitário do produto</label>
+                        <input type="number" name="Valor" id="ivalor" required placeholder="Insira apenas o valor">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="ivalor">CPF do cliente</label>
+                        <input type="text" name="cpf" id="icpf" required placeholder="123.456.789-10">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="ivalor">Nome e sobrenome do cliente</label>
+                        <input type="text" name="nome" id="inome" required placeholder="João Silva">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full">Confirmar Atribuição</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const token = localStorage.getItem('token');
+        const API_URL = "http://localhost:3000/api";
+        window.addEventListener('DOMContentLoaded', () => {
+            loadData();
+        });
+        // Dados dos veículos
+        function loadData(){
+            getDeliveredOrders();
+            getPendingOrders();
+            getTransitOrders();
+            todayOrders()
+            getVehicles();
+            getDeliveryMans();
+            getOrders();
+        }
+        let vehicles = [];
+        let drivers = {
+            moto: [],
+            van: [],
+            caminhao: []
         };
 
         // Validação de peso
@@ -953,6 +941,47 @@
             document.getElementById('weight-indicator').style.display = 'none';
         }
 
+        async function createDelivery(event){
+            event.preventDefault();
+
+            try{
+                const endereco = document.getElementById('iend').value;
+                const peso = document.getElementById('cargo-weight').value;
+                const valor = document.getElementById('ivalor').value;
+                const cpfCliente = document.getElementById("icpf").value;
+                const nomeCliente = document.getElementById('inome').value;
+
+                if(!endereco || !peso || !valor || !cpfCliente || !nomeCliente){
+                    alert("Preencha todos os campos!");
+                    return;
+                }
+
+                const res = await fetch(`${API_URL}/orders/create`, {
+                    method: "POST",
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        date: new Date(),
+                        address: endereco,
+                        weight: peso,
+                        value: valor,
+                        clientCpf: cpfCliente,
+                        clientName: nomeCliente
+                    })
+                });
+                const data = await res.json();
+                if(!res.ok){
+                    console.log("Erro: ", data.error);
+                    return;
+                }
+                alert("Entrega criada com sucesso!");
+            }catch(error){
+                console.error("Erro final: ", error);
+                return;
+            }
+        }
+
         // Modal functions
         function openModal(modalId) {
             document.getElementById(modalId).classList.add('active');
@@ -989,6 +1018,180 @@
                 
                 row.style.display = matchCpf && matchStatus ? '' : 'none';
             });
+        }
+        // Função para retornar a classe correta do badge
+        function getBadgeClass(status) {
+            const badges = {
+                'CREATED': 'badge-pending',
+                'PENDING': 'badge-pending',
+                'IN_DELIVERY': 'badge-transit',
+                'DELIVERED': 'badge-delivered'
+            };
+            return badges[status] || 'badge-pending';
+        }
+
+        // Função para retornar o texto em português
+        function getStatusText(status) {
+            const statusText = {
+                'CREATED': 'Criado',
+                'PENDING': 'Pendente',
+                'IN_DELIVERY': 'Em Trânsito',
+                'DELIVERED': 'Entregue'
+            };
+            return statusText[status] || status;
+        }
+        async function getOrders(){
+            try{
+                const res = await fetch(`${API_URL}/orders`, {
+                    headers: { 'Authorization': `Bearer ${token}`},
+                    credentials: 'include'
+                })
+                const data = await res.json();
+                if(!res.ok){
+                    console.error("Erro: ", data.error);
+                    displayOrders([]);
+                    return;
+                }
+                displayOrders(data.orders)
+            }catch (error){
+                console.error("Erro final: ", error);
+                displayOrders([]);
+                return;
+            }
+        }
+        async function todayOrders(){
+            try{
+                const res = await fetch(`${API_URL}/orders/orders-today`, {
+                    headers: { 'Authorization': `Bearer ${token}`},
+                    credentials: 'include'
+                });
+                const data = await res.json();
+                if(!res.ok){
+                    console.error("Erro na contagem de pedidos: ", data.error)
+                    document.getElementById('stat-orders').innerText = "ERRO";
+                    document.getElementById('stat-orders').style.color = 'red';
+                }
+                document.getElementById('stat-orders').innerText = data.count;
+            }catch (error){
+                console.error("Erro na contagem de pedidos: ", error)
+            }
+        }
+        async function getPendingOrders(){
+            try{
+                const res = await fetch(`${API_URL}/orders/orders-today?status=PENDING`, {
+                    headers: { 'Authorization': `Bearer ${token}`},
+                    credentials: 'include'
+                });
+                const data = await res.json();
+                if(!res.ok){
+                    console.error("Erro na contagem de pedidos: ", data.error)
+                    document.getElementById('pending-value').innerText = "ERRO";
+                    document.getElementById('pending-value').style.color = 'red';
+                }
+                if(data.count < 1){
+                    document.getElementById('stat-pending').classList.remove("negative")
+                    document.getElementById('stat-pending').classList.add("positive")
+                    document.getElementById('stat-pending').innerText = "✓ Não requer atenção"
+                }
+                document.getElementById('pending-value').innerText = data.count;
+            }catch (error){
+                console.error("Erro na contagem de pedidos aguardando: ", error)
+            }
+        }
+        async function getTransitOrders(){
+            try{
+                const res = await fetch(`${API_URL}/orders/orders-today?status=IN_DELIVERY`, {
+                    headers: { 'Authorization': `Bearer ${token}`},
+                    credentials: 'include'
+                });
+                const data = await res.json();
+                if(!res.ok){
+                    console.error("Erro na contagem de pedidos: ", data.error)
+                    document.getElementById('transit-value').innerText = "ERRO";
+                    document.getElementById('transit-value').style.color = 'red';
+                }
+                document.getElementById('transit-value').innerText = data.count;
+            }catch (error){
+                console.error("Erro na contagem de pedidos em trânsito: ", error)
+            }
+        }
+        async function getDeliveredOrders(){
+            try{
+                const res = await fetch(`${API_URL}/orders/orders-today?status=DELIVERED`, {
+                    headers: { 'Authorization': `Bearer ${token}`},
+                    credentials: 'include'
+                });
+                const data = await res.json();
+                if(!res.ok){
+                    console.error("Erro na contagem de pedidos: ", data.error)
+                    document.getElementById('delivered-value').innerText = "ERRO";
+                    document.getElementById('delivered-value').style.color = 'red';
+                }
+                document.getElementById('delivered-value').innerText = data.count;
+            }catch (error){
+                console.error("Erro na contagem de pedidos entregues: ", error)
+            }
+        }
+        async function getVehicles(){
+            try{
+                const res = await fetch(`${API_URL}/vehicles/`, {
+                    headers: { 'Authorization': `Bearer ${token}`},
+                    credentials: 'include'
+                });
+                const data = await res.json();
+                if(!res.ok){
+                    console.error("Erro na busca de carros: ", data.error);
+                    return;
+                }
+                vehicles = data.veiculos
+            }catch (error){
+                console.error("Erro: ", error);
+                return;
+            }
+        }
+        async function getDeliveryMans(){
+            try{
+                const res = await fetch(`${API_URL}/users/delivery-man`, {
+                    headers: { 'Authorization': `Bearer ${token}`},
+                    credentials: 'include'
+                })
+                const data = await res.json();
+                if(!res.ok){
+                    console.error("Erro na busca de entregadores: ", data.error);
+                    return;
+                }
+                drivers.moto = data.motor;
+                drivers.caminhao = data.truck;
+                drivers.van = data.cars;
+            }catch (error){
+                console.log("Erro: ", error);
+                return;
+            }
+        }
+        function displayOrders(orders) {
+            const grid = document.getElementById('deliveries-table');
+            
+            if (!orders || !Array.isArray(orders) || orders.length === 0) {
+                grid.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 3rem; color: #6B7280;">Nenhum pedido encontrado.</td></tr>';
+                return;
+            }
+
+            grid.innerHTML = orders.map(order => `
+                <tr data-status="${order.status}" data-cpf="${order.clientCpf}">
+                    <td><strong>#${order.id}</strong></td>
+                    <td>${order.clientName}</td>
+                    <td>${order.clientCpf}</td>
+                    <td>${order.address}</td>
+                    <td>${order.peso} kg</td>
+                    <td>${order.catchedBy?.name || 'Não atribuído'} ${order.catchedBy?.surname || ''}</td>
+                    <td>
+                        <span class="badge ${getBadgeClass(order.status)}">
+                            ${getStatusText(order.status)}
+                        </span>
+                    </td>
+                    <td><button class="btn btn-secondary btn-sm" onclick="manageOrder(${order.id})">Gerenciar</button></td>
+                </tr>
+            `).join('');
         }
     </script>
 </body>

@@ -14,7 +14,7 @@ enum Role{
 }
 enum Delivery{
     CREATED
-    IN_SEPARATION
+    PENDING
     IN_DELIVERY
     DELIVERED
 }
@@ -42,6 +42,7 @@ model User {
   user_status   Status @default(ACTIVE)
   role      Role    @default(DELIVERY_MAN)
   status    DeliveryManStatus?
+  type_vehicle  String?
 
   createdPedidos       Pedido[] @relation("CreatedBy")
   administeredPedidos  Pedido[] @relation("AdministeredBy")
@@ -53,6 +54,7 @@ model Pedido {
   id              Int      @id @default(autoincrement())
   created_at      DateTime @default(now())
   estimated_date  DateTime
+  delivered_date  DateTime
   address         String?
   peso            Float
   status          Delivery @default(CREATED)
@@ -60,6 +62,7 @@ model Pedido {
   frete           Float
   imageUrl        String
   clientCpf       String
+  clientName      String
 
   created_by       Int?
   administered_by  Int?

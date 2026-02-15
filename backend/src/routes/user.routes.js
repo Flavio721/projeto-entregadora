@@ -1,17 +1,17 @@
 import express from 'express';
-import { deleteUser, getUserById, getUsers, updateUser } from '../controllers/user.controller.js';
+import { deleteUser, getDeliveryMan, getUserById, getUsers, updateUser } from '../controllers/user.controller.js';
 import { authMiddleware } from '../middlewares/auth.js';
-import { authValidation } from '../middlewares/validator.js';
-import { checkRole } from '../middlewares/roles.js';
+import { checkRole, isAdmin } from '../middlewares/roles.js';
 
 const router = express.Router();
 
-router.get("/", authMiddleware, checkRole("ADMIN"), getUsers);
+router.get("/", authMiddleware, isAdmin, getUsers);
 
 
-router.post("/update", authMiddleware, checkRole("ADMIN"), updateUser);
-router.post("/delete", authMiddleware, checkRole("ADMIN"), deleteUser);
+router.post("/update", authMiddleware, isAdmin, updateUser);
+router.post("/delete", authMiddleware, isAdmin, deleteUser);
 
+router.get("/delivery-man", authMiddleware, checkRole("ADMIN", "OPERATOR"), getDeliveryMan);
 
 router.get("/:id", authMiddleware, checkRole("ADMIN", getUserById));
 export default router;

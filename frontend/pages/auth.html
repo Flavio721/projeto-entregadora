@@ -708,6 +708,11 @@
                 </div>
 
                 <div class="form-group">
+                    <label class="form-label">Tipo de habilitação</label>
+                    <input type="text" class="form-input" placeholder="Moto/Carro/Caminhão" required id="ihabi">
+                </div>
+
+                <div class="form-group">
                     <label class="form-label">Senha</label>
                     <div class="password-wrapper">
                         <input type="password" class="form-input" id="register-password" placeholder="Mínimo 8 caracteres" minlength="8" required>
@@ -809,41 +814,55 @@
         async function handleLogin(event) {
             event.preventDefault();
             
-            // Simular login (em produção, fazer requisição ao backend)
-            const email = document.getElementById("iemail").value;
-            const senha = document.getElementById("ipassword").value;
+            // ⭐ PEGAR O VALOR DIRETO DO INPUT
+            const emailInput = document.getElementById("iemail");
+            const senhaInput = document.getElementById("ipassword");
+            
+            const email = emailInput.value.trim();
+            const senha = senhaInput.value.trim();
+            
+            console.log("📧 Email após trim:", email);
+            console.log("📧 Email que será enviado:", email);
 
             try{
+                const payload = {
+                    email: email,
+                    password: senha
+                };
+                            
                 const res = await fetch(`${API_URL}/auth/login`, {
                     method: "POST",
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     credentials: "include",
-                    body: JSON.stringify({
-                        email: email,
-                        password: senha,
-                    })
-                })
+                    body: JSON.stringify(payload)
+                });
+                
                 const data = await res.json();
+                
                 if(!res.ok){
-                    console.log("Erro: ", data.error);
+                    console.log("❌ Erro:", data.error);
+                    alert("Erro: " + data.error);
                     return;
                 }
+                
                 alert("Login realizado com sucesso!");
-                dataUser = data.user
                 localStorage.setItem('token', data.token);
                 localStorage.setItem('user', JSON.stringify(data.user));
+                
+                // Redirecionar
+                if (data.user.role === "ADMIN") {
+                    window.location.href = '/dashboardAdmin';
+                } else if (data.user.role === "OPERATOR") {
+                    window.location.href = '/dashboardOperador';
+                } else {
+                    window.location.href = '/dashboardEntregador';
+                }
+                
             }catch(error){
-                console.log("Erro: ", error);
-            }
-            // Demo: redirecionar baseado no email
-            if (dataUser.role === "ADMIN") {
-                window.location.href = '/dashboardAdmin';
-            } else if (dataUser.role === "OPERADOR") {
-                window.location.href = '/dashboardOperador';
-            } else {
-                window.location.href = '/dashboardEntregador';
+                console.log("💥 Erro:", error);
+                alert("Erro ao fazer login");
             }
         }
 
@@ -868,6 +887,7 @@
                 const cpf = document.getElementById('icpf').value
                 const endereco = document.getElementById("iendereco").value
                 const telefone = document.getElementById('itel').value
+                const veiculo = document.getElementById("ihabi").value;
 
                 document.getElementById('icpf').addEventListener('input', function(e) {
                 let value = e.target.value.replace(/\D/g, '');
@@ -900,7 +920,8 @@
                     password: password,
                     cpf: cpf,
                     address: endereco,
-                    phone: telefone
+                    phone: telefone,
+                    typeVehicle: veiculo
                 })
             });
             const data = await res.json();

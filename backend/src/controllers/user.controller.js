@@ -91,3 +91,31 @@ export async function deleteUser(req, res){
         return res.status(500).json({ error: "Erro ao deletar usuário" });
     }
 }
+export async function getDeliveryMan(req, res){
+    try{
+        const motor_drivers = await prisma.user.findMany({
+            where: { 
+                type_vehicle: "MOTO",
+                role: "DELIVERY_MAN"}
+        });
+        const cars_drivers = await prisma.user.findMany({
+            where: { 
+                type_vehicle: "CARRO",
+                role: "DELIVERY_MAN"}
+        });
+        const truck_drivers = await prisma.user.findMany({
+            where: { 
+                type_vehicle: "CAMINHÃO",
+                role: "DELIVERY_MAN"}
+        });
+
+        return res.json({
+            cars: cars_drivers,
+            motor: motor_drivers,
+            truck: truck_drivers
+        });
+    }catch(error){
+        console.error("Erro: ", error);
+        return res.status(500).json({ error: "Erro ao buscar entregadores" });
+    }
+}
