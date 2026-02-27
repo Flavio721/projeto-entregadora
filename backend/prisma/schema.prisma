@@ -30,6 +30,17 @@ enum Status{
   ACTIVE
   INACTIVE
 }
+enum Historic{
+  CANCELLED
+  DELIVERED
+  RETURNED
+  OUT_OF_DATE
+}
+enum PaymentStatus {
+  PENDING
+  PAID
+  CANCELLED
+}
 model User {
   id        Int     @id @default(autoincrement())
   name      String
@@ -48,6 +59,7 @@ model User {
   createdPedidos       Pedido[] @relation("CreatedBy")
   administeredPedidos  Pedido[] @relation("AdministeredBy")
   catchedPedidos       Pedido[] @relation("CatchedBy")
+  payment_status  PaymentStatus @default(PENDING)
 }
 
 
@@ -94,4 +106,7 @@ model Historico{
   id              Int     @id @default(autoincrement())
   note            String
   date            DateTime
+  type            Historic?
+  clientName      String?
+  address         String?
 }

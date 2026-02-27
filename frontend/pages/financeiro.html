@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financeiro - FleetFlow</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --navy: #0A1628;
+            --navy-light: #1A2942;
+            --navy-lighter: #2A3952;
+            --orange: #FF6B35;
+            --orange-light: #FF8C61;
+            --yellow: #FFB020;
+            --green: #06D6A0;
+            --green-dark: #05B587;
+            --gray: #6B7280;
+            --gray-light: #E5E7EB;
+            --gray-lighter: #F9FAFB;
+            --white: #FFFFFF;
+            --red: #DC2626;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--gray-lighter);
+            color: var(--navy);
+            line-height: 1.6;
+        }
+
+        .shell {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: var(--navy);
+            color: var(--white);
+            padding: 2rem 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 100;
+        }
+
+        .sidebar-logo {
+            padding: 0 1.5rem 2rem;
+            border-bottom: 1px solid var(--navy-lighter);
+            margin-bottom: 2rem;
+        }
+
+        .logo-text {
+            font-family: 'Space Mono', monospace;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--orange);
+        }
+
+        .logo-subtitle {
+            font-size: 0.75rem;
+            color: var(--gray);
+            margin-top: 0.25rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.875rem 1.5rem;
+            color: var(--gray-light);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            background: var(--navy-light);
+            color: var(--white);
+            border-left-color: var(--orange);
+        }
+
+        .nav-link.active {
+            background: var(--navy-lighter);
+            color: var(--white);
+            border-left-color: var(--orange);
+        }
+
+        .nav-icon {
+            margin-right: 0.875rem;
+            font-size: 1.25rem;
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+        }
+
+        .topbar {
+            background: var(--white);
+            padding: 1.25rem 2rem;
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .topbar-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--navy);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--orange), var(--yellow));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: var(--white);
+        }
+
+        .content-area {
+            padding: 2rem;
+        }
+
+        /* Filter Section */
+        .filter-section {
+            background: var(--white);
+            padding: 1.5rem 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+            display: flex;
+            gap: 1rem;
+            align-items: end;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .filter-label {
+            display: block;
+            font-weight: 600;
+            color: var(--navy);
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .filter-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid var(--gray-light);
+            border-radius: 8px;
+            font-family: 'Outfit', sans-serif;
+            transition: all 0.2s ease;
+        }
+
+        .filter-input:focus {
+            outline: none;
+            border-color: var(--orange);
+            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--orange);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background: var(--orange-light);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .btn-secondary {
+            background: var(--navy);
+            color: var(--white);
+        }
+
+        .btn-secondary:hover {
+            background: var(--navy-light);
+        }
+
+        /* Summary Cards */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .summary-card {
+            background: var(--white);
+            padding: 1.75rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .summary-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--orange), var(--yellow));
+        }
+
+        .summary-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .summary-card.highlight {
+            background: linear-gradient(135deg, var(--orange), var(--orange-light));
+            color: var(--white);
+        }
+
+        .summary-label {
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.75rem;
+            opacity: 0.9;
+        }
+
+        .summary-value {
+            font-size: 2.25rem;
+            font-weight: 700;
+            font-family: 'Space Mono', monospace;
+            margin-bottom: 0.5rem;
+        }
+
+        .summary-change {
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .summary-change.positive {
+            color: var(--green);
+        }
+
+        .summary-change.negative {
+            color: var(--red);
+        }
+
+        /* Chart Section */
+        .chart-section {
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--navy);
+            margin-bottom: 1.5rem;
+        }
+
+        .chart-placeholder {
+            height: 300px;
+            background: var(--gray-lighter);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gray);
+        }
+
+        /* Table */
+        .table-section {
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .table-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--gray-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table thead {
+            background: var(--gray-lighter);
+        }
+
+        .data-table th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--navy);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .data-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .data-table tbody tr:hover {
+            background: var(--gray-lighter);
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.375rem 0.875rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .badge-paid {
+            background: #E7F9F3;
+            color: var(--green);
+        }
+
+        .badge-pending {
+            background: #FFF3E0;
+            color: var(--yellow);
+        }
+
+        .badge-cancelled {
+            background: #FFE5E0;
+            color: var(--red);
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            border-bottom: 2px solid var(--gray-light);
+            margin-bottom: 1.5rem;
+        }
+
+        .tab {
+            padding: 0.75rem 1.5rem;
+            background: none;
+            border: none;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--gray);
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+
+        .tab.active {
+            color: var(--orange);
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--orange);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate {
+            animation: fadeInUp 0.6s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="shell">
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-text">FleetFlow</div>
+                <div class="logo-subtitle">Gestão Financeira</div>
+            </div>
+            <nav>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="/dashboardAdmin" class="nav-link">
+                            <span class="nav-icon">📊</span>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/gerenciar-usuarios" class="nav-link">
+                            <span class="nav-icon">👥</span>
+                            Usuários
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link active">
+                            <span class="nav-icon">💰</span>
+                            Financeiro
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <span class="nav-icon">📈</span>
+                            Relatórios
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="topbar">
+                <h1 class="topbar-title">Gestão Financeira</h1>
+                <div class="user-avatar">AD</div>
+            </div>
+
+            <div class="content-area">
+                <!-- Filtros -->
+                <div class="filter-section animate">
+                    <div class="filter-group">
+                        <label class="filter-label">Data Inicial</label>
+                        <input type="date" class="filter-input" id="start-date">
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">Data Final</label>
+                        <input type="date" class="filter-input" id="end-date">
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">Status</label>
+                        <select class="filter-input" id="status-filter">
+                            <option value="">Todos</option>
+                            <option value="PAID">Pago</option>
+                            <option value="PENDING">Pendente</option>
+                            <option value="CANCELLED">Cancelado</option>
+                        </select>
+                    </div>
+                    <div>
+                        <button class="btn btn-primary" onclick="applyFilters()">
+                            🔍 Filtrar
+                        </button>
+                        <button class="btn btn-secondary" onclick="exportData()">
+                            📥 Exportar CSV
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Cards de Resumo -->
+                <div class="summary-grid animate">
+                    <div class="summary-card highlight">
+                        <div class="summary-label">Faturamento Bruto</div>
+                        <div class="summary-value" id="total-revenue">R$ 0,00</div>
+                        <div class="summary-change positive" id="revenue-change">
+                            ↗ +0% vs período anterior
+                        </div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-label">Pendentes de Pagamento</div>
+                        <div class="summary-value" id="pending-payments">R$ 0,00</div>
+                        <div class="summary-change" id="pending-count">
+                            0 pedidos aguardando
+                        </div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-label">Custo de Logística</div>
+                        <div class="summary-value" id="logistics-cost">R$ 0,00</div>
+                        <div class="summary-change" id="cost-percentage">
+                            0% do faturamento
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gráfico -->
+                <div class="chart-section animate">
+                    <h2 class="section-title">Faturamento Diário</h2>
+                    <div class="chart-placeholder" id="chart">
+                        📊 Gráfico de faturamento (integrar Chart.js)
+                    </div>
+                </div>
+
+                <!-- Tabs -->
+                <div class="table-section animate">
+                    <div class="table-header">
+                        <h2 class="section-title" style="margin: 0;">Tabela de Conciliação</h2>
+                    </div>
+                    
+                    <div style="padding: 0 1.5rem;">
+                        <div class="tabs">
+                            <button class="tab active" onclick="switchTab('deliveries')">
+                                📦 Entregas Concluídas
+                            </button>
+                            <button class="tab" onclick="switchTab('drivers')">
+                                🚚 Pagamentos de Entregadores
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Tab: Entregas -->
+                    <div id="tab-deliveries">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Data</th>
+                                    <th>Cliente</th>
+                                    <th>Peso</th>
+                                    <th>Veículo</th>
+                                    <th>Valor</th>
+                                    <th>Frete</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="deliveries-table">
+                                <!-- Dados carregados dinamicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Tab: Entregadores -->
+                    <div id="tab-drivers" style="display: none;">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Entregador</th>
+                                    <th>Veículo</th>
+                                    <th>Total de Entregas</th>
+                                    <th>Total Acumulado</th>
+                                    <th>Período</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="drivers-table">
+                                <!-- Dados carregados dinamicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const API_URL = "http://localhost:3000/api";
+        const token = localStorage.getItem('token');
+        const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+
+        // Verificar autenticação
+        window.addEventListener('DOMContentLoaded', () => {
+            if (!token || !currentUser.id) {
+                window.location.href = '/login';
+                return;
+            }
+
+            if (currentUser.role !== 'ADMIN') {
+                alert('Acesso negado! Apenas administradores.');
+                window.location.href = '/dashboardOperador';
+                return;
+            }
+
+            // Definir datas padrão (últimos 30 dias)
+            const today = new Date();
+            const thirtyDaysAgo = new Date(today);
+            thirtyDaysAgo.setDate(today.getDate() - 30);
+
+            document.getElementById('start-date').valueAsDate = thirtyDaysAgo;
+            document.getElementById('end-date').valueAsDate = today;
+
+            // Carregar dados
+            loadFinancialData();
+        });
+
+        // Aplicar filtros
+        function applyFilters() {
+            loadFinancialData();
+        }
+
+        // Carregar dados financeiros
+        async function loadFinancialData() {
+            try {
+                const startDate = document.getElementById('start-date').value;
+                const endDate = document.getElementById('end-date').value;
+                const status = document.getElementById('status-filter').value;
+
+                let url = `${API_URL}/financial/summary?startDate=${startDate}&endDate=${endDate}`;
+                if (status) url += `&status=${status}`;
+
+                const res = await fetch(url, {
+                    headers: { 
+                        'Authorization': `Bearer ${token}`
+                    },
+                    credentials: 'include'
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    console.error("Erro:", data.error);
+                    return;
+                }
+
+                updateSummaryCards(data.summary);
+                displayDeliveries(data.deliveries);
+                displayDrivers(data.drivers);
+                console.log(data.drivers);
+
+            } catch (error) {
+                console.error("Erro ao carregar dados financeiros:", error);
+            }
+        }
+
+        // Atualizar cards de resumo
+        function updateSummaryCards(summary) {
+            document.getElementById('total-revenue').textContent = 
+                `R$ ${(summary.totalRevenue || 0).toFixed(2)}`;
+            
+            document.getElementById('pending-payments').textContent = 
+                `R$ ${(summary.pendingPayments || 0).toFixed(2)}`;
+            
+            document.getElementById('logistics-cost').textContent = 
+                `R$ ${(summary.logisticsCost || 0).toFixed(2)}`;
+
+            document.getElementById('pending-count').textContent = 
+                `${summary.pendingCount || 0} pedidos aguardando`;
+
+            const costPercentage = summary.totalRevenue > 0 
+                ? ((summary.logisticsCost / summary.totalRevenue) * 100).toFixed(1)
+                : 0;
+            document.getElementById('cost-percentage').textContent = 
+                `${costPercentage}% do faturamento`;
+        }
+
+        // Exibir entregas
+        function displayDeliveries(deliveries) {
+            const tbody = document.getElementById('deliveries-table');
+
+            if (!deliveries || deliveries.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 3rem;">Nenhuma entrega encontrada</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = deliveries.map(delivery => `
+                <tr>
+                    <td><strong>#${delivery.id}</strong></td>
+                    <td>${formatDate(delivery.delivered_date)}</td>
+                    <td>${delivery.clientName}</td>
+                    <td>${delivery.peso} kg</td>
+                    <td>${delivery.carro?.tipo || '-'}</td>
+                    <td><strong>R$ ${delivery.valor.toFixed(2)}</strong></td>
+                    <td>R$ ${delivery.frete.toFixed(2)}</td>
+                    <td>
+                        <span class="badge badge-${getBadgeClass(delivery.payment_status)}">
+                            ${getStatusText(delivery.payment_status)}
+                        </span>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Exibir entregadores
+        function displayDrivers(drivers) {
+            const tbody = document.getElementById('drivers-table');
+
+            if (!drivers || drivers.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 3rem;">Nenhum entregador encontrado</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = drivers.map(driver => `
+                <tr>
+                    <td><strong>${driver.name} ${driver.surname}</strong></td>
+                    <td>${driver.type_vehicle || '-'}</td>
+                    <td style="text-align: center;">${driver.totalDeliveries}</td>
+                    <td><strong style="color: var(--green);">R$ ${driver.totalEarned.toFixed(2)}</strong></td>
+                    <td>${document.getElementById('start-date').value} a ${document.getElementById('end-date').value}</td>
+                    <td>
+                        <button class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.875rem;" 
+                                onclick="generateDriverReport(${driver.id})">
+                            📄 Relatório
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Trocar tabs
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+
+            document.getElementById('tab-deliveries').style.display = 
+                tabName === 'deliveries' ? 'block' : 'none';
+            document.getElementById('tab-drivers').style.display = 
+                tabName === 'drivers' ? 'block' : 'none';
+        }
+
+        // Exportar para CSV
+        // Exportar para CSV
+async function exportData() {
+    try {
+        const startDate = document.getElementById('start-date').value;
+        const endDate = document.getElementById('end-date').value;
+        
+        console.log('📥 Exportando dados...');
+        
+        const res = await fetch(`${API_URL}/financial/export?startDate=${startDate}&endDate=${endDate}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
+            credentials: 'include'
+        });
+
+        if (!res.ok) {
+            const data = await res.json();
+            alert(`Erro: ${data.error}`);
+            return;
+        }
+
+        // ⭐ Converter resposta em blob
+        const blob = await res.blob();
+        
+        // ⭐ Criar link de download
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `financeiro_${startDate}_${endDate}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        
+        // ⭐ Limpar
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        
+        console.log('✅ Arquivo baixado com sucesso!');
+        
+    } catch (error) {
+        console.error('❌ Erro ao exportar:', error);
+        alert('Erro ao exportar dados');
+    }
+}
+
+// Gerar relatório de entregador
+async function generateDriverReport(driverId) {
+    try {
+        const startDate = document.getElementById('start-date').value;
+        const endDate = document.getElementById('end-date').value;
+        
+        console.log(`📄 Gerando relatório do entregador ${driverId}...`);
+        
+        const res = await fetch(`${API_URL}/financial/driver-report/${driverId}?startDate=${startDate}&endDate=${endDate}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
+            credentials: 'include'
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+            alert(`Erro: ${data.error}`);
+            return;
+        }
+
+        // ⭐ Exibir em modal ou nova aba
+        displayDriverReportModal(data);
+        
+    } catch (error) {
+        console.error('❌ Erro ao gerar relatório:', error);
+        alert('Erro ao gerar relatório');
+    }
+}
+
+// Exibir relatório em modal
+    function displayDriverReportModal(report) {
+        const modal = `
+            <div class="modal-overlay" onclick="closeReportModal()">
+                <div class="modal-content" onclick="event.stopPropagation()" style="max-width: 800px;">
+                    <div class="modal-header">
+                        <h2>Relatório de Entregador</h2>
+                        <button class="btn-close" onclick="closeReportModal()">✕</button>
+                    </div>
+                    
+                    <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+                        <div style="margin-bottom: 2rem;">
+                            <h3 style="color: var(--navy); margin-bottom: 1rem;">
+                                ${report.driver.name} ${report.driver.surname}
+                            </h3>
+                            <p style="color: var(--gray);">
+                                <strong>Email:</strong> ${report.driver.email}<br>
+                                <strong>Telefone:</strong> ${report.driver.phone || '-'}<br>
+                                <strong>Veículo:</strong> ${report.driver.type_vehicle || '-'}
+                            </p>
+                        </div>
+
+                        <div class="summary-grid" style="grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 2rem;">
+                            <div class="summary-card">
+                                <div class="summary-label">Total de Entregas</div>
+                                <div class="summary-value" style="font-size: 1.75rem;">${report.summary.totalDeliveries}</div>
+                            </div>
+                            <div class="summary-card">
+                                <div class="summary-label">Total Acumulado</div>
+                                <div class="summary-value" style="font-size: 1.75rem; color: var(--green);">
+                                    R$ ${report.summary.totalEarned.toFixed(2)}
+                                </div>
+                            </div>
+                            <div class="summary-card">
+                                <div class="summary-label">Peso Total</div>
+                                <div class="summary-value" style="font-size: 1.75rem;">${report.summary.totalWeight.toFixed(1)} kg</div>
+                            </div>
+                            <div class="summary-card">
+                                <div class="summary-label">Frete Médio</div>
+                                <div class="summary-value" style="font-size: 1.75rem;">
+                                    R$ ${report.summary.averageFreight.toFixed(2)}
+                                </div>
+                            </div>
+                        </div>
+
+                        <h4 style="color: var(--navy); margin-bottom: 1rem;">Entregas Detalhadas</h4>
+                        <table class="data-table" style="font-size: 0.875rem;">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Data</th>
+                                    <th>Cliente</th>
+                                    <th>Peso</th>
+                                    <th>Frete</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${report.deliveries.map(d => `
+                                    <tr>
+                                        <td>#${d.id}</td>
+                                        <td>${formatDate(d.delivered_date)}</td>
+                                        <td>${d.clientName}</td>
+                                        <td>${d.peso} kg</td>
+                                        <td><strong>R$ ${d.frete.toFixed(2)}</strong></td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" onclick="closeReportModal()">Fechar</button>
+                        <button class="btn btn-primary" onclick="printReport()">🖨️ Imprimir</button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.body.insertAdjacentHTML('beforeend', modal);
+    }
+
+    function closeReportModal() {
+        const modal = document.querySelector('.modal-overlay');
+        if (modal) modal.remove();
+    }
+
+    function printReport() {
+        window.print();
+    }
+
+        // Helpers
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('pt-BR');
+        }
+
+        function getBadgeClass(status) {
+            const badges = {
+                'PAID': 'paid',
+                'PENDING': 'pending',
+                'CANCELLED': 'cancelled'
+            };
+            return badges[status] || 'pending';
+        }
+
+        function getStatusText(status) {
+            const texts = {
+                'PAID': 'Pago',
+                'PENDING': 'Pendente',
+                'CANCELLED': 'Cancelado'
+            };
+            return texts[status] || status;
+        }
+    </script>
+</body>
+</html>

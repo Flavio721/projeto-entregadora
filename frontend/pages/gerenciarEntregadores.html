@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <title>Gerenciar Usuários - BiblioTech</title>
+    <style>
+
+        :root {
+            --navy: #0A1628;
+            --navy-light: #1A2942;
+            --navy-lighter: #2A3952;
+            --orange: #FF6B35;
+            --orange-light: #FF8C61;
+            --yellow: #FFB020;
+            --green: #06D6A0;
+            --green-dark: #05B587;
+            --gray: #6B7280;
+            --gray-light: #E5E7EB;
+            --gray-lighter: #F9FAFB;
+            --white: #FFFFFF;
+            --red: #DC2626;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --text-inverse: #ffffff;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--gray-lighter);
+            color: var(--navy);
+        }
+
+        .sidebar {
+            width: 280px;
+            background: var(--navy);
+            color: var(--white);
+            padding: 2rem 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 100;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-logo {
+            padding: 0 1.5rem 2rem;
+            border-bottom: 1px solid var(--navy-lighter);
+            margin-bottom: 2rem;
+        }
+
+        .logo-text {
+            font-family: 'Space Mono', monospace;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--orange);
+            letter-spacing: -0.02em;
+        }
+
+        .logo-subtitle {
+            font-size: 0.75rem;
+            color: var(--gray);
+            margin-top: 0.25rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.875rem 1.5rem;
+            color: var(--gray-light);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            background: var(--navy-light);
+            color: var(--white);
+            border-left-color: var(--orange);
+        }
+
+        .nav-link.active {
+            background: var(--navy-lighter);
+            color: var(--white);
+            border-left-color: var(--orange);
+        }
+
+        .nav-icon {
+            margin-right: 0.875rem;
+            font-size: 1.25rem;
+        }
+
+        .nav-footer {
+            position: absolute;
+            bottom: 2rem;
+            left: 0;
+            right: 0;
+            padding: 0 1.5rem;
+            border-top: 1px solid var(--navy-lighter);
+            padding-top: 1.5rem;
+        }
+
+        .nav-footer-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            color: var(--gray-light);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+        }
+
+        .nav-footer-link:hover {
+            background: var(--navy-light);
+            color: var(--white);
+        }
+
+        .main {
+            margin-left: 250px;
+            padding: 2rem;
+        }
+
+        .header {
+            padding: 1.5rem 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+        }
+
+        .toolbar {
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 0.875rem 1rem;
+            padding-left: 2.5rem;
+            border-radius: 8px;
+            border: 2px solid var(--gray-light);
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: 0.75rem center;
+            box-shadow: 0px 2px var(--shadow);
+        }
+
+        table {
+            width: 100%;
+            background: var(--bg-page);
+            color: var(--text-primary);
+            border-radius: 12px;
+            border: 1px solid var(--orange-light);
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        th {
+            background: var(--bg-page);
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .role-badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            background-color: var(--gray-lighter);
+        }
+
+        .role-user { background: var(--gray-lighter); color: #1e40af; }
+        .role-librarian { background: #fef3c7; color: #92400e; }
+        .role-admin { background: #fce7f3; color: #9f1239; }
+
+        select {
+            padding: 0.5rem;
+            border: 2px solid var(--gray-light);
+            border-radius: 6px;
+            cursor: pointer;
+            background-color: var(--white);
+            color: var(--text-primary);
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-success { background: #10b981; color: white; }
+        .btn-danger { background: #ef4444; color: white; }
+
+        .status-active { color: #10b981; }
+        .status-inactive { color: #ef4444; }
+        #toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        }
+
+        /* Toast Base */
+        .toast {
+            min-width: 300px;
+            max-width: 500px;
+            padding: 16px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            animation: slideIn 0.3s ease-out;
+            pointer-events: auto;
+            cursor: pointer;
+        }
+
+        /* Tipos de Toast */
+        .toast.error {
+            background: #fee2e2;
+            border-left: 4px solid #ef4444;
+            color: #991b1b;
+        }
+
+        .toast.success {
+            background: #d1fae5;
+            border-left: 4px solid #10b981;
+            color: #065f46;
+        }
+
+        .toast.warning {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            color: #92400e;
+        }
+
+        .toast.info {
+            background: #dbeafe;
+            border-left: 4px solid #3b82f6;
+            color: #1e40af;
+        }
+
+        /* Ícone */
+        .toast-icon {
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        /* Conteúdo */
+        .toast-content {
+            flex: 1;
+        }
+
+        .toast-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .toast-message {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        /* Botão Fechar */
+        .toast-close {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            opacity: 0.5;
+            transition: opacity 0.2s;
+            padding: 0;
+            margin-left: 8px;
+        }
+
+        .toast-close:hover {
+            opacity: 1;
+        }
+
+        /* Animações */
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+
+        .toast.removing {
+            animation: slideOut 0.3s ease-out forwards;
+        }
+
+        /* Barra de Progresso (opcional) */
+        .toast-progress {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            background: currentColor;
+            opacity: 0.3;
+            animation: progress 5s linear forwards;
+        }
+
+        @keyframes progress {
+            from { width: 100%; }
+            to { width: 0%; }
+        }
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--orange);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background: var(--orange-light);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 22, 40, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--white);
+            border-radius: 16px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--gray-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--navy);
+        }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: var(--gray-lighter);
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            font-size: 1.25rem;
+        }
+
+        .modal-close:hover {
+            background: var(--orange);
+            color: var(--white);
+            transform: rotate(90deg);
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            color: var(--navy);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-input,
+        .form-select {
+            width: 100%;
+            padding: 0.875rem;
+            border: 2px solid var(--gray-light);
+            border-radius: 8px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+        }
+
+        .form-input:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: var(--orange);
+            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+        }
+
+        .form-help {
+            font-size: 0.875rem;
+            color: var(--gray);
+            margin-top: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div id="toast-container"></div>
+    <aside class="sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-text">FleetFlow</div>
+                <div class="logo-subtitle">Painel Admin</div>
+            </div>
+            <nav>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="/dashboardOperador" class="nav-link" id="dashboard-link">
+                            <span class="nav-icon">📊</span>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link active">
+                            <span class="nav-icon">👥</span>
+                            Usuários
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/financeiro" class="nav-link">
+                            <span class="nav-icon">💰</span>
+                            Financeiro
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <span class="nav-icon">📈</span>
+                            Relatórios
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <span class="nav-icon">⚙️</span>
+                            Configurações
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <div class="nav-footer">
+                <a href="operador.html" class="nav-footer-link">
+                    <span class="nav-icon">📦</span>
+                    Dashboard Operador
+                </a>
+            </div>
+        </aside>
+
+    <main class="main">
+        <div class="header">
+            <h1>Gerenciar Usuários</h1>
+            <p style="color: #64748b;">Controle de permissões e status</p>
+        </div>
+
+        <div class="toolbar">
+            <input type="text" class="search-input" placeholder="Buscar usuários..." oninput="searchUsers()"> 
+            <button class="btn btn-primary" onclick="openModal('assign-modal')">
+                        + Atribuir Entrega
+                    </button>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nome</th>
+                    <th>Email</th>
+                    <th>Tipo de habilitação</th>
+                    <th>Entregas</th>
+                </tr>
+            </thead>
+            <tbody id="usersTable">
+                <tr>
+                    <td colspan="8" style="text-align: center; padding: 3rem;">
+                        Carregando usuários...
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </main>
+
+    <div id="assign-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Atrbiuir novo veículo</h3>
+                <button class="modal-close" onclick="closeModal('assign-modal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <form onsubmit="createDelivery(event)">
+                    <div class="form-group">
+                        <label class="form-label">Código do entregador</label>
+                        <input type="number" class="form-input" placeholder="123"    id="icod">
+                    </div>
+                    <div class="form-group">
+                        <select id="tipo-veiculo">
+                            <option value="">Todos Veículos</option>
+                            <option value="MOTO">Moto</option>
+                            <option value="CARRO">Carro</option>
+                            <option value="CAMINHAO">Caminhão</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-full">Confirmar Atribuição</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const theme = localStorage.getItem('theme') || 'light';
+
+        document.documentElement.setAttribute('data-theme', theme);
+        const API_URL = 'http://localhost:3000/api';
+        const token = localStorage.getItem('token');
+        let allUsers = [];
+
+        async function loadUsers() {
+            try {
+                const response = await fetch(`${API_URL}/users/delivery-man`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if(!response.ok){
+                    showError(response.message, 'Erro ao carregar usuários');
+                }
+                const data = await response.json();
+                allUsers = data.users;
+                displayUsers(allUsers);
+            } catch (error) {
+                showError(error.message, 'Erro ao carregar usuários');
+            }
+        }
+         async function loadUserData() {
+            try {
+                const response = await fetch(`${API_URL}/auth/me`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    }
+            } catch (error) {
+                showError(error.message, 'Erro ao carregar dados');
+            }
+        }
+        function showToast(message, type = 'info', duration = 5000, title = '') {
+            const container = document.getElementById('toast-container');
+            
+            // Criar elemento do toast
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            // Ícones para cada tipo
+            const icons = {
+                error: '❌',
+                success: '✅',
+                warning: '⚠️',
+                info: 'ℹ️'
+            };
+            
+            // Títulos padrão
+            const titles = {
+                error: title || 'Erro',
+                success: title || 'Sucesso',
+                warning: title || 'Atenção',
+                info: title || 'Informação'
+            };
+            
+            // Montar HTML
+            toast.innerHTML = `
+                <div class="toast-icon">${icons[type]}</div>
+                <div class="toast-content">
+                    <div class="toast-title">${titles[type]}</div>
+                    <div class="toast-message">${message}</div>
+                </div>
+                <button class="toast-close" onclick="this.parentElement.remove()">×</button>
+                ${duration > 0 ? '<div class="toast-progress"></div>' : ''}
+            `;
+            
+            // Adicionar ao container
+            container.appendChild(toast);
+            
+            // Remover automaticamente após duração
+            if (duration > 0) {
+                setTimeout(() => {
+                    toast.classList.add('removing');
+                    setTimeout(() => toast.remove(), 300); // Espera animação terminar
+                }, duration);
+            }
+            
+            // Remover ao clicar
+            toast.addEventListener('click', (e) => {
+                if (e.target.classList.contains('toast-close')) return;
+                toast.classList.add('removing');
+                setTimeout(() => toast.remove(), 300);
+            });
+        }
+
+        // Atalhos para tipos específicos
+        function showError(message, title) {
+            showToast(message, 'error', 5000, title);
+        }
+        function displayUsers(users) {
+            const tbody = document.getElementById('usersTable');
+            
+            if (!users || users.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 3rem;">
+                            Nenhum usuário encontrado
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = users.map(user => {
+                return `
+                <tr>
+                    <td>#${user.id}</td>
+                    <td>${user.name}</td>
+                    <td>${user.email}</td>
+                    <td>${user.type_vehicle}</td>
+                    <td>${user._count.catchedPedidos}</td>
+                </tr>
+                `;
+        }).join('');
+        }
+
+        function searchUsers() {
+            const search = event.target.value.toLowerCase();
+            const filtered = allUsers.filter(user =>
+                user.name.toLowerCase().includes(search) ||
+                user.email.toLowerCase().includes(search)
+            );
+            displayUsers(filtered);
+        }
+
+
+        function formatDate(date) {
+            return new Date(date).toLocaleDateString('pt-BR');
+        }
+
+        // Função para criar/atribuir entrega
+        async function createDelivery(event) {
+            event.preventDefault(); // ⭐ Prevenir reload da página
+            
+            try {
+                // ⭐ Capturar valores do formulário
+                const codigoEntregador = document.getElementById('icod').value;
+                const tipoVeiculo = document.getElementById('tipo-veiculo').value; // ⚠️ Precisa adicionar ID no select
+                
+                // ⭐ Validações
+                if (!codigoEntregador) {
+                    alert('Código do entregador é obrigatório');
+                    return;
+                }
+                
+                if (!tipoVeiculo) {
+                    alert('Selecione o tipo de veículo');
+                    return;
+                }
+                
+                // ⭐ Enviar para o backend
+                const res = await fetch(`${API_URL}/users/deliveries/assign`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        deliveryManId: parseInt(codigoEntregador),
+                        vehicleType: tipoVeiculo
+                    })
+                });
+                
+                const data = await res.json();
+                
+                if (!res.ok) {
+                    alert(`Erro: ${data.error}`);
+                    return;
+                }
+                
+                alert('✓ Veículo atribuída com sucesso!');
+                closeModal('assign-modal'); // Fechar modal
+                loadUsers(); // Recarregar lista
+                
+            } catch (error) {
+                console.error('Erro ao atribuir entrega:', error);
+                alert('Erro ao atribuir entrega');
+            }
+        }
+
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        loadUsers();
+        loadUserData();
+    </script>
+</body>
+</html>

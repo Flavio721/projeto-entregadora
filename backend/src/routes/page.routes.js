@@ -33,4 +33,24 @@ router.get("/dashboardOperador", pageAuth, (req, res) => {
     path.join(__dirname, "../../../frontend/pages/dashboardOperador.html"),
   );
 });
+router.get("/gerenciar-usuarios", pageAuth, (req, res) => {
+  res.sendFile(
+    path.join(__dirname, "../../../frontend/pages/gerenciarUsuarios.html"),
+  );
+});
+router.get("/financeiro", pageAuth, (req, res) => {
+  res.sendFile(
+    path.join(__dirname, "../../../frontend/pages/financeiro.html"),
+  );
+});
+router.get("/relatorios", pageAuth, (req, res) => {
+  res.sendFile(
+    path.join(__dirname, "../../../frontend/pages/relatorios.html"),
+  );
+});
+router.get("/gerenciar-entregadores", pageAuth, (req, res) => {
+  res.sendFile(
+    path.join(__dirname, "../../../frontend/pages/gerenciarEntregadores.html"),
+  );
+});
 export default router;

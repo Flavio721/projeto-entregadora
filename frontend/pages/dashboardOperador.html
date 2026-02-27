@@ -651,7 +651,7 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="#" class="nav-link">
+                        <a href="/gerenciar-entregadores" class="nav-link">
                             <span class="nav-icon">🚚</span>
                             Entregadores
                         </a>
@@ -700,29 +700,29 @@
                 <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-label">Entregas Hoje</div>
-                        <div class="stat-value" id="stat-orders">47</div>
-                        <div class="stat-change positive" id="stat-orders">
+                        <div class="stat-value" id="stat-orders">0</div>
+                        <div class="stat-change positive" id="rate-orders">
                             ↗ +12% vs ontem
                         </div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-label">Pendentes</div>
-                        <div class="stat-value" id="pending-value">12</div>
+                        <div class="stat-value" id="pending-value">0</div>
                         <div class="stat-change negative" id="stat-pending">
                             ⚠️ Requer atenção
                         </div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-label">Em Trânsito</div>
-                        <div class="stat-value" id="transit-value">18</div>
-                        <div class="stat-change positive" id="stat-transit">
+                        <div class="stat-value" id="transit-value">0</div>
+                        <div class="stat-change positive" id="rate-transit">
                             ✓ No prazo
                         </div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-label">Entregues</div>
-                        <div class="stat-value" id="delivered-value">17</div>
-                        <div class="stat-change positive" id="stat-delivered">
+                        <div class="stat-value" id="delivered-value">0</div>
+                        <div class="stat-change positive" id="rate-delivered">
                             ✓ 100% sucesso
                         </div>
                     </div>
@@ -850,6 +850,9 @@
     <script>
         const token = localStorage.getItem('token');
         const API_URL = "http://localhost:3000/api";
+        let valorEntregasAnterior
+        let valorEntregasTransitoAnterior;
+        let valorPedidosEntreguesAnterior;
         window.addEventListener('DOMContentLoaded', () => {
             loadData();
         });
@@ -1062,18 +1065,53 @@
         async function todayOrders(){
             try{
                 const res = await fetch(`${API_URL}/orders/orders-today`, {
-                    headers: { 'Authorization': `Bearer ${token}`},
+                    headers: { 'Authorization': `Bearer ${token}` },
                     credentials: 'include'
                 });
+                
                 const data = await res.json();
+                
                 if(!res.ok){
-                    console.error("Erro na contagem de pedidos: ", data.error)
+                    console.error("Erro na contagem de pedidos:", data.error);
                     document.getElementById('stat-orders').innerText = "ERRO";
                     document.getElementById('stat-orders').style.color = 'red';
+                    return;
                 }
+                
+                // Atualizar valor atual
                 document.getElementById('stat-orders').innerText = data.count;
+                
+                const valorAnterior = parseInt(localStorage.getItem("orders")) || 0;
+                
+                if (valorAnterior === 0) {
+                    document.getElementById('rate-orders').innerText = "";
+                } else {
+                    // Fórmula correta: ((Novo - Antigo) / Antigo) * 100
+                    const diferenca = data.count - valorAnterior;
+                    const percentual = (diferenca / valorAnterior) * 100;
+                    
+                    const rateElement = document.getElementById('rate-orders');
+                    
+                    if (percentual > 0) {
+                        // Cresceu
+                        rateElement.textContent = `↗ +${percentual.toFixed(1)}% vs ontem`;
+                        rateElement.className = 'stat-change positive';
+                    } else if (percentual < 0) {
+                        // Diminuiu
+                        rateElement.textContent = `↘ ${percentual.toFixed(1)}% vs ontem`;
+                        rateElement.className = 'stat-change negative';
+                    } else {
+                        // Igual
+                        rateElement.textContent = `→ Mesmo valor de ontem`;
+                        rateElement.className = 'stat-change';
+                    }
+                }
+                
+                // ⭐ SALVAR VALOR ATUAL para comparação futura
+                localStorage.setItem("orders", data.count);
+                
             }catch (error){
-                console.error("Erro na contagem de pedidos: ", error)
+                console.error("Erro na contagem de pedidos:", error);
             }
         }
         async function getPendingOrders(){
@@ -1111,6 +1149,35 @@
                     document.getElementById('transit-value').style.color = 'red';
                 }
                 document.getElementById('transit-value').innerText = data.count;
+
+                const valorAnterior = parseInt(localStorage.getItem("transit")) || 0;
+                
+                if (valorAnterior === 0) {
+                    document.getElementById('rate-transit').innerText = "";
+                } else {
+                    // Fórmula correta: ((Novo - Antigo) / Antigo) * 100
+                    const diferenca = data.count - valorAnterior;
+                    const percentual = (diferenca / valorAnterior) * 100;
+                    
+                    const rateElement = document.getElementById('rate-transit');
+                    
+                    if (percentual > 0) {
+                        // Cresceu
+                        rateElement.textContent = `↗ +${percentual.toFixed(1)}% vs ontem`;
+                        rateElement.className = 'stat-change positive';
+                    } else if (percentual < 0) {
+                        // Diminuiu
+                        rateElement.textContent = `↘ ${percentual.toFixed(1)}% vs ontem`;
+                        rateElement.className = 'stat-change negative';
+                    } else {
+                        // Igual
+                        rateElement.textContent = `→ Mesmo valor de ontem`;
+                        rateElement.className = 'stat-change';
+                    }
+                }
+                
+                // ⭐ SALVAR VALOR ATUAL para comparação futura
+                localStorage.setItem("transit", data.count);
             }catch (error){
                 console.error("Erro na contagem de pedidos em trânsito: ", error)
             }
@@ -1128,6 +1195,35 @@
                     document.getElementById('delivered-value').style.color = 'red';
                 }
                 document.getElementById('delivered-value').innerText = data.count;
+
+                const valorAnterior = parseInt(localStorage.getItem("delivered")) || 0;
+                
+                if (valorAnterior === 0) {
+                    document.getElementById('rate-delivered').innerText = "";
+                } else {
+                    // Fórmula correta: ((Novo - Antigo) / Antigo) * 100
+                    const diferenca = data.count - valorAnterior;
+                    const percentual = (diferenca / valorAnterior) * 100;
+                    
+                    const rateElement = document.getElementById('rate-delivered');
+                    
+                    if (percentual > 0) {
+                        // Cresceu
+                        rateElement.textContent = `↗ +${percentual.toFixed(1)}% vs ontem`;
+                        rateElement.className = 'stat-change positive';
+                    } else if (percentual < 0) {
+                        // Diminuiu
+                        rateElement.textContent = `↘ ${percentual.toFixed(1)}% vs ontem`;
+                        rateElement.className = 'stat-change negative';
+                    } else {
+                        // Igual
+                        rateElement.textContent = `→ Mesmo valor de ontem`;
+                        rateElement.className = 'stat-change';
+                    }
+                }
+                
+                // ⭐ SALVAR VALOR ATUAL para comparação futura
+                localStorage.setItem("delivered", data.count);
             }catch (error){
                 console.error("Erro na contagem de pedidos entregues: ", error)
             }

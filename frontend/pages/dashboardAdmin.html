@@ -723,19 +723,19 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="#" class="nav-link">
+                        <a href="/gerenciar-usuarios" class="nav-link">
                             <span class="nav-icon">👥</span>
                             Usuários
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="#" class="nav-link">
+                        <a href="/financeiro" class="nav-link">
                             <span class="nav-icon">💰</span>
                             Financeiro
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="#" class="nav-link">
+                        <a href="/relatorios" class="nav-link">
                             <span class="nav-icon">📈</span>
                             Relatórios
                         </a>
@@ -1219,7 +1219,7 @@
                                 <div class="user-icon">${user.name.charAt(0).toUpperCase()}${user.surname.charAt(0).toUpperCase()}</div>
                                 <div class="user-info">
                                     <h4>${user.name} ${user.surname} <span class="user-role role-${user.role.toLowerCase()}">${user.role}</span></h4>
-                                    <p>${user.email} • Ativo</p>
+                                    <p>${user.email} • ${user.user_status === 'ACTIVE' ? 'Ativo' : 'Inativo'}</p>
                                 </div>
                             </div>
                             <div class="user-actions">

@@ -39,3 +39,33 @@ export async function list(req, res){
         return res.status(500).json({ error: "Erro ao buscar carros" });
     }
 }
+export async function setVehicle(req, res){
+    try{
+        const { deliveryManId, vehicleType } = req.body;
+
+        const driver_exists = await prisma.user.findUnique({
+            where: { id: deliveryManId,
+                    role: "DELIVERY_MAN"
+            }
+        });
+
+        if(!driver_exists){
+            return res.status(404).json({ error: "Erro ao buscar entregador"});
+        }
+
+        const updateDriver = await prisma.user.update({
+            where: { id: deliveryManId},
+            data: {
+                type_vehicle: vehicleType
+            }
+        });
+
+        return res.status(200).json({
+            message: "Veículo atribuido",
+            updateDriver
+        });
+    }catch(error){
+        console.error("Erro: ", error);
+        return res.status(500).json({ error: "Erro ao atualizar informações do entregador"});
+    }
+}
