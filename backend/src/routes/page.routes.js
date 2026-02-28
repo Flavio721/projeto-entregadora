@@ -53,4 +53,9 @@ router.get("/gerenciar-entregadores", pageAuth, (req, res) => {
     path.join(__dirname, "../../../frontend/pages/gerenciarEntregadores.html"),
   );
 });
+router.get("/gerenciar-veiculos", pageAuth, (req, res) => {
+  res.sendFile(
+    path.join(__dirname, "../../../frontend/pages/gerenciarVeiculos.html"),
+  );
+});
 export default router;

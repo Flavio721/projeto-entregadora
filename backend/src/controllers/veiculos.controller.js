@@ -41,6 +41,37 @@ export async function list(req, res){
 }
 export async function setVehicle(req, res){
     try{
+        const { deliveryManId, vehicleId } = req.body;
+
+        const driver_exists = await prisma.user.findUnique({
+            where: { id: deliveryManId,
+                    role: "DELIVERY_MAN"
+            }
+        });
+
+        if(!driver_exists){
+            return res.status(404).json({ error: "Erro ao buscar entregador"});
+        }
+
+        const updateDriver = await prisma.user.update({
+            where: { id: deliveryManId},
+            data: {
+                carroId: vehicleId
+            }
+        });
+
+        return res.status(200).json({
+            message: "Veículo atribuido",
+            updateDriver
+        });
+    }catch(error){
+        console.error("Erro: ", error);
+        return res.status(500).json({ error: "Erro ao atualizar informações do entregador"});
+    }
+}
+
+export async function assignTypeVehicle(req, res){
+    try{
         const { deliveryManId, vehicleType } = req.body;
 
         const driver_exists = await prisma.user.findUnique({
@@ -67,5 +98,33 @@ export async function setVehicle(req, res){
     }catch(error){
         console.error("Erro: ", error);
         return res.status(500).json({ error: "Erro ao atualizar informações do entregador"});
+    }
+}
+export async function unassignVehicle(req, res){
+    try{
+        const { vehicleId } = req.body;
+
+        const vehicle_exists = await prisma.veiculo.findUnique({
+            where: { id: vehicleId}
+        });
+
+        if(!vehicle_exists){
+            return res.status(404).json({ error: "Veículo não encontrado"});
+        }
+
+        const updateVehicleStatus = await prisma.veiculo.update({
+            where: { id: vehicleId},
+            data: {
+                status: "AVALIABLE"
+            }
+        });
+
+        return res.status(200).json({
+            message: "Veículo liberado com sucesso!",
+            updateVehicleStatus
+        });
+    }catch(error){
+        console.error("Erro: ", error);
+        return res.status(500).json({ error: "Erro ao atualizar status"});
     }
 }

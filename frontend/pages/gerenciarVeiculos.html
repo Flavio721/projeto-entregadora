@@ -2,7 +2,7 @@
 <html lang="pt-BR" data-theme="light">
 <head>
     <meta charset="UTF-8">
-    <title>Gerenciar Usuários - BiblioTech</title>
+    <title>Gerenciar Veículos - BiblioTech</title>
     <style>
 
         :root {
@@ -507,7 +507,7 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="#" class="nav-link active">
+                        <a href="/gerenciar-entregadores" class="nav-link">
                             <span class="nav-icon">🚚</span>
                             Entregadores
                         </a>
@@ -516,12 +516,6 @@
                         <a href="/relatorios" class="nav-link">
                             <span class="nav-icon">📈</span>
                             Relatórios
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="/gerenciar-veiculos" class="nav-link">
-                            <span class="nav-icon">🚗</span>
-                            Veículos
                         </a>
                     </li>
                     <li class="nav-item">
@@ -542,31 +536,36 @@
 
     <main class="main">
         <div class="header">
-            <h1>Gerenciar Entregadores</h1>
-            <p style="color: #64748b;">Controle de ações e operações</p>
+            <h1>Gerenciar Veículos</h1>
+            <p style="color: #64748b;">Controle de permissões e status</p>
         </div>
 
         <div class="toolbar">
             <input type="text" class="search-input" placeholder="Buscar usuários..." oninput="searchUsers()"> 
             <button class="btn btn-primary" onclick="openModal('assign-modal')">
-                        + Atribuir Entrega
-                    </button>
+                        + Atribuir Veículo
+            </button>
+            <button class="btn btn-primary" onclick="openModal('unassign-modal')">
+                        + Liberar Veículo
+            </button>
         </div>
 
         <table>
             <thead>
                 <tr>
                     <th>ID</th>
+                    <th>CRV</th>
                     <th>Nome</th>
-                    <th>Email</th>
-                    <th>Tipo de habilitação</th>
-                    <th>Entregas</th>
+                    <th>Marca</th>
+                    <th>Tipo</th>
+                    <th>Ano</th>
+                    <th>Status</th>
                 </tr>
             </thead>
-            <tbody id="usersTable">
+            <tbody id="vehicleTable">
                 <tr>
                     <td colspan="8" style="text-align: center; padding: 3rem;">
-                        Carregando usuários...
+                        Carregando veículos...
                     </td>
                 </tr>
             </tbody>
@@ -576,25 +575,38 @@
     <div id="assign-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 class="modal-title">Atrbiuir novo veículo</h3>
+                <h3 class="modal-title">Atrbiuir entregador a veículo</h3>
                 <button class="modal-close" onclick="closeModal('assign-modal')">✕</button>
             </div>
             <div class="modal-body">
-                <form onsubmit="createDelivery(event)">
+                <form onsubmit="assignVehicle(event)">
                     <div class="form-group">
                         <label class="form-label">Código do entregador</label>
-                        <input type="number" class="form-input" placeholder="123"    id="icod">
+                        <input type="number" class="form-input" placeholder="123"    id="icoduser">
                     </div>
                     <div class="form-group">
-                        <select id="tipo-veiculo">
-                            <option value="">Todos Veículos</option>
-                            <option value="MOTO">Moto</option>
-                            <option value="CARRO">Carro</option>
-                            <option value="CAMINHAO">Caminhão</option>
-                        </select>
+                        <label class="form-label">Código do veículo</label>
+                        <input type="number" class="form-input" placeholder="123"    id="icodvehicle">
                     </div>
-                    
                     <button type="submit" class="btn btn-primary btn-full">Confirmar Atribuição</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="unassign-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Liberar veículo</h3>
+                <button class="modal-close" onclick="closeModal('assign-modal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <form onsubmit="unassignVehicle(event)">
+                    <div class="form-group">
+                        <label class="form-label">Código do veículo</label>
+                        <input type="number" class="form-input" placeholder="123"    id="icodvehicle">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full">Confirmar Liberação</button>
                 </form>
             </div>
         </div>
@@ -606,21 +618,21 @@
         document.documentElement.setAttribute('data-theme', theme);
         const API_URL = 'http://localhost:3000/api';
         const token = localStorage.getItem('token');
-        let allUsers = [];
+        let allVehicles = [];
 
-        async function loadUsers() {
+        async function loadVehicles() {
             try {
-                const response = await fetch(`${API_URL}/users/delivery-man`, {
+                const response = await fetch(`${API_URL}/vehicles/`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 if(!response.ok){
-                    showError(response.message, 'Erro ao carregar usuários');
+                    showError(response.message, 'Erro ao carregar veículos');
                 }
                 const data = await response.json();
-                allUsers = data.users;
-                displayUsers(allUsers);
+                allVehicles = data.veiculos;
+                displayVehicles(allVehicles);
             } catch (error) {
-                showError(error.message, 'Erro ao carregar usuários');
+                showError(error.message, 'Erro ao carregar veículos');
             }
         }
          async function loadUserData() {
@@ -693,40 +705,45 @@
         function showError(message, title) {
             showToast(message, 'error', 5000, title);
         }
-        function displayUsers(users) {
-            const tbody = document.getElementById('usersTable');
+        function showSucess(message, title) {
+            showToast(message, 'sucess', 5000, title);
+        }
+        function displayVehicles(vehicles) {
+            const tbody = document.getElementById('vehicleTable');
             
-            if (!users || users.length === 0) {
+            if (!vehicles || vehicles.length === 0) {
                 tbody.innerHTML = `
                     <tr>
                         <td colspan="8" style="text-align: center; padding: 3rem;">
-                            Nenhum usuário encontrado
+                            Nenhum veículo encontrado
                         </td>
                     </tr>
                 `;
                 return;
             }
 
-            tbody.innerHTML = users.map(user => {
+            tbody.innerHTML = vehicles.map(vehicle => {
                 return `
                 <tr>
-                    <td>#${user.id}</td>
-                    <td>${user.name}</td>
-                    <td>${user.email}</td>
-                    <td>${user.type_vehicle}</td>
-                    <td>${user._count.catchedPedidos}</td>
+                    <td>#${vehicle.id}</td>
+                    <td>${vehicle.crv}</td>
+                    <td>${vehicle.nome}</td>
+                    <td>${vehicle.marca}</td>
+                    <td>${vehicle.tipo}</td>
+                    <td>${vehicle.ano}</td>
+                    <td>${vehicle.status}</td>
                 </tr>
                 `;
         }).join('');
         }
 
-        function searchUsers() {
+        function searchVehicles() {
             const search = event.target.value.toLowerCase();
-            const filtered = allUsers.filter(user =>
-                user.name.toLowerCase().includes(search) ||
-                user.email.toLowerCase().includes(search)
+            const filtered = allVehicles.filter(vehicle =>
+                vehicle.name.toLowerCase().includes(search) ||
+                vehicle.id.toLowerCase().includes(search)
             );
-            displayUsers(filtered);
+            displayVehicles(filtered);
         }
 
 
@@ -735,13 +752,13 @@
         }
 
         // Função para criar/atribuir entrega
-        async function createDelivery(event) {
+        async function assignVehicle(event) {
             event.preventDefault(); // ⭐ Prevenir reload da página
             
             try {
                 // ⭐ Capturar valores do formulário
-                const codigoEntregador = document.getElementById('icod').value;
-                const tipoVeiculo = document.getElementById('tipo-veiculo').value; // ⚠️ Precisa adicionar ID no select
+                const codigoEntregador = document.getElementById('icoduser').value;
+                const codigoVeiculo = document.getElementById('icodvehicle').value; // ⚠️ Precisa adicionar ID no select
                 
                 // ⭐ Validações
                 if (!codigoEntregador) {
@@ -749,13 +766,13 @@
                     return;
                 }
                 
-                if (!tipoVeiculo) {
-                    alert('Selecione o tipo de veículo');
+                if (!codigoVeiculo) {
+                    alert('Código do veículo é obrigatório');
                     return;
                 }
                 
                 // ⭐ Enviar para o backend
-                const res = await fetch(`${API_URL}/users/deliveries/assign`, {
+                const res = await fetch(`${API_URL}/vehicles/assign`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -764,7 +781,7 @@
                     credentials: 'include',
                     body: JSON.stringify({
                         deliveryManId: parseInt(codigoEntregador),
-                        vehicleType: tipoVeiculo
+                        vehicleId: parseInt(codigoVeiculo)
                     })
                 });
                 
@@ -775,13 +792,54 @@
                     return;
                 }
                 
-                alert('✓ Veículo atribuída com sucesso!');
+                showSucess('✓ Veículo atribuído com sucesso!');
                 closeModal('assign-modal'); // Fechar modal
-                loadUsers(); // Recarregar lista
+                loadVehicles(); // Recarregar lista
                 
             } catch (error) {
-                console.error('Erro ao atribuir entrega:', error);
-                alert('Erro ao atribuir entrega');
+                console.error('Erro ao atribuir veículo:', error);
+                showError('Erro ao atribuir veículo');
+            }
+        }
+        async function unassignVehicle(event) {
+            event.preventDefault(); // ⭐ Prevenir reload da página
+            
+            try {
+                // ⭐ Capturar valores do formulário
+                const codigoVeiculo = document.getElementById('icodvehicle').value; // ⚠️ Precisa adicionar ID no select
+                                
+                if (!codigoVeiculo) {
+                    alert('Código do veículo é obrigatório');
+                    return;
+                }
+                
+                // ⭐ Enviar para o backend
+                const res = await fetch(`${API_URL}/vehicles/unassign`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        vehicleId: parseInt(codigoVeiculo)
+                    })
+                });
+                
+                const data = await res.json();
+                
+                if (!res.ok) {
+                    alert(`Erro: ${data.error}`);
+                    return;
+                }
+                
+                showSucess('✓ Veículo liberado com sucesso!');
+                closeModal('unassign-modal'); // Fechar modal
+                loadVehicles(); // Recarregar lista
+                
+            } catch (error) {
+                console.error('Erro ao liberar veículo:', error);
+                showError('Erro ao liberar veículo');
             }
         }
 
@@ -792,7 +850,7 @@
             document.getElementById(modalId).classList.remove('active');
         }
 
-        loadUsers();
+        loadVehicles();
         loadUserData();
     </script>
 </body>
