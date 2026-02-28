@@ -58,4 +58,14 @@ router.get("/gerenciar-veiculos", pageAuth, (req, res) => {
     path.join(__dirname, "../../../frontend/pages/gerenciarVeiculos.html"),
   );
 });
+router.get("/relatorios-operador", pageAuth, (req, res) => {
+  res.sendFile(
+    path.join(__dirname, "../../../frontend/pages/relatoriosOperador.html"),
+  );
+});
+router.get("/configs", pageAuth, (req, res) => {
+  res.sendFile(
+    path.join(__dirname, "../../../frontend/pages/configuracoes.html"),
+  );
+});
 export default router;

@@ -647,26 +647,20 @@
         <aside class="sidebar">
             <div class="sidebar-logo">
                 <div class="logo-text">FleetFlow</div>
-                <div class="logo-subtitle">Relatórios</div>
+                <div class="logo-subtitle">Painel Operador</div>
             </div>
             <nav>
                 <ul class="nav-menu">
                     <li class="nav-item">
-                        <a href="#" class="nav-link active">
+                        <a href="/dashboardOperador" class="nav-link" id="dashboard-link">
                             <span class="nav-icon">📊</span>
                             Dashboard
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="/gerenciar-usuarios" class="nav-link">
-                            <span class="nav-icon">👥</span>
-                            Usuários
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="/financeiro" class="nav-link">
-                            <span class="nav-icon">💰</span>
-                            Financeiro
+                        <a href="/gerenciar-entregadores" class="nav-link">
+                            <span class="nav-icon">🚚</span>
+                            Entregadores
                         </a>
                     </li>
                     <li class="nav-item">
@@ -751,76 +745,6 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- Gráfico de Entregas por Dia -->
-                <div class="chart-section animate">
-                    <h2 class="section-title">Volume de Entregas por Dia</h2>
-                    <div class="chart-container">
-                        <canvas id="deliveriesChart"></canvas>
-                    </div>
-                </div>
-
-                <!-- Ranking de Entregadores -->
-                <div class="ranking-section animate">
-                    <div class="ranking-header">
-                        <h2 class="section-title" style="margin: 0;">🏆 Ranking de Performance</h2>
-                    </div>
-                    <ul class="ranking-list" id="ranking-list">
-                        <!-- Dados carregados dinamicamente -->
-                    </ul>
-                </div>
-
-                <!-- Mapa de Calor de Destinos -->
-                <div class="heatmap-section animate">
-                    <div class="heatmap-table">
-                        <div class="ranking-header">
-                            <h2 class="section-title" style="margin: 0;">🗺️ Destinos Mais Atendidos</h2>
-                        </div>
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Bairro/Região</th>
-                                    <th>Entregas</th>
-                                    <th>Volume</th>
-                                </tr>
-                            </thead>
-                            <tbody id="heatmap-table">
-                                <!-- Dados carregados dinamicamente -->
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <!-- Gráfico de Pizza -->
-                    <div class="chart-section">
-                        <h2 class="section-title">Distribuição por Região</h2>
-                        <div class="chart-container" style="height: 250px;">
-                            <canvas id="regionsChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Relatório de Ocorrências -->
-                <div class="occurrences-section animate">
-                    <div class="ranking-header">
-                        <h2 class="section-title" style="margin: 0;">⚠️ Relatório de Ocorrências</h2>
-                    </div>
-                    
-                    <div class="tabs">
-                        <button class="tab active" onclick="switchOccurrenceTab('cancelled')">
-                            🚫 Cancelados
-                        </button>
-                        <button class="tab" onclick="switchOccurrenceTab('late')">
-                            ⏰ Fora do Prazo
-                        </button>
-                        <button class="tab" onclick="switchOccurrenceTab('returned')">
-                            ↩️ Devolvidos
-                        </button>
-                    </div>
-
-                    <div class="tab-content" id="occurrences-content">
-                        <!-- Dados carregados dinamicamente -->
-                    </div>
-                </div>
             </div>
         </main>
     </div>
@@ -897,103 +821,6 @@
                     return;
                 }
                 updateKPIs(data1.kpis);
-
-                // let url2 = `${API_URL}/dashboard/kpi`;
-
-                // const res2 = await fetch(url, {
-                //     headers: { 
-                //         'Authorization': `Bearer ${token}`
-                //     },
-                //     credentials: 'include'
-                // });
-
-                // const data2 = await res2.json();
-                // if (!res.ok) {
-                //     console.error("Erro:", data.error);
-                //     return;
-                // }
-                // updateDeliveriesChart(data.dailyDeliveries);
-
-                url = `${API_URL}/dashboard/drivers`;
-
-                const res3 = await fetch(url, {
-                    headers: { 
-                        'Authorization': `Bearer ${token}`
-                    },
-                    credentials: 'include'
-                });
-
-                const data3 = await res3.json();
-                if (!res3.ok) {
-                    console.error("Erro:", data3.error);
-                    return;
-                }
-                updateRanking(data3.ranking);
-
-                url = `${API_URL}/dashboard/heatmap`;
-
-                const res4 = await fetch(url, {
-                    headers: { 
-                        'Authorization': `Bearer ${token}`
-                    },
-                    credentials: 'include'
-                });
-
-                const data4 = await res4.json();
-                if (!res4.ok) {
-                    console.error("Erro:", data4.error);
-                    return;
-                }
-                updateHeatmap(data4.heatmap);
-
-                url = `${API_URL}/dashboard/kpis`;
-
-                const res5 = await fetch(url, {
-                    headers: { 
-                        'Authorization': `Bearer ${token}`
-                    },
-                    credentials: 'include'
-                });
-
-                const data5 = await res5.json();
-                if (!res5.ok) {
-                    console.error("Erro:", data5.error);
-                    return;
-                }
-                updateRegionsChart(data5.heatmap);
-
-                url = `${API_URL}/dashboard/occurrences`;
-
-                const res6 = await fetch(url, {
-                    headers: { 
-                        'Authorization': `Bearer ${token}`
-                    },
-                    credentials: 'include'
-                });
-
-                const data6 = await res6.json();
-                if (!res6.ok) {
-                    console.error("Erro:", data6.error);
-                    return;
-                }
-                updateOccurrences(data6.occurrences);
-
-                // let url7 = `${API_URL}/dashboard/kpi`;
-
-                // const res7 = await fetch(url, {
-                //     headers: { 
-                //         'Authorization': `Bearer ${token}`
-                //     },
-                //     credentials: 'include'
-                // });
-
-                // const data7 = await res.json();
-                // if (!res.ok) {
-                //     console.error("Erro:", data.error);
-                //     return;
-                // }
-                // loadDriversFilter(data.drivers);
-
             } catch (error) {
                 console.error("Erro ao carregar relatório:", error);
             }
@@ -1018,195 +845,6 @@
 
             document.getElementById('total-packages').textContent =
                 totalPackages;
-}
-
-        // Atualizar ranking
-        function updateRanking(ranking) {
-            const list = document.getElementById('ranking-list');
-
-            if (!ranking || ranking.length === 0) {
-                list.innerHTML = '<li style="padding: 3rem; text-align: center; color: #6B7280;">Nenhum entregador encontrado</li>';
-                return;
-            }
-
-            list.innerHTML = ranking.map((driver, index) => {
-                const position = index + 1;
-                let positionClass = '';
-                
-                if (position === 1) positionClass = 'gold';
-                else if (position === 2) positionClass = 'silver';
-                else if (position === 3) positionClass = 'bronze';
-
-                const avgHours = Math.floor(driver.avgTime / 60);
-                const avgMinutes = driver.avgTime % 60;
-
-                return `
-                    <li class="ranking-item">
-                        <div class="ranking-position ${positionClass}">${position}</div>
-                        <div class="ranking-driver">
-                            <div class="driver-avatar">${driver.name.charAt(0)}${driver.surname.charAt(0)}</div>
-                            <div class="driver-info">
-                                <h4>${driver.name} ${driver.surname}</h4>
-                                <p>${driver.type_vehicle || 'Veículo não informado'}</p>
-                            </div>
-                        </div>
-                        <div class="ranking-stat">
-                            <div class="stat-value">${driver.totalDeliveries}</div>
-                            <div class="stat-label">Entregas</div>
-                        </div>
-                        <div class="ranking-stat">
-                            <div class="stat-value">${avgHours}h ${avgMinutes}m</div>
-                            <div class="stat-label">Tempo Médio</div>
-                        </div>
-                        <div class="ranking-stat">
-                            <div class="stat-value">${driver.successRate.toFixed(1)}%</div>
-                            <div class="stat-label">Taxa de Sucesso</div>
-                        </div>
-                    </li>
-                `;
-            }).join('');
-        }
-
-        // Atualizar mapa de calor
-        function updateHeatmap(heatmap) {
-            const tbody = document.getElementById('heatmap-table');
-
-            if (!heatmap || heatmap.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 3rem;">Nenhum dado disponível</td></tr>';
-                return;
-            }
-
-            const maxDeliveries = Math.max(...heatmap.map(h => h.count));
-
-            tbody.innerHTML = heatmap.slice(0, 10).map(region => {
-                const percentage = (region.count / maxDeliveries) * 100;
-                
-                return `
-                    <tr>
-                        <td>
-                            <strong>${region.region}</strong>
-                            <div class="heatmap-bar">
-                                <div class="heatmap-bar-fill" style="width: ${percentage}%"></div>
-                            </div>
-                        </td>
-                        <td style="text-align: center;"><strong>${region.count}</strong></td>
-                        <td style="text-align: center;">${region.percentage.toFixed(1)}%</td>
-                    </tr>
-                `;
-            }).join('');
-        }
-
-        // Atualizar gráfico de regiões (pizza)
-        function updateRegionsChart(heatmap) {
-            const ctx = document.getElementById('regionsChart');
-            
-            if (regionsChart) {
-                regionsChart.destroy();
-            }
-
-            if (!heatmap || heatmap.length === 0) return;
-
-            const top5 = heatmap.slice(0, 5);
-            const labels = top5.map(h => h.region);
-            const values = top5.map(h => h.count);
-
-            regionsChart = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        data: values,
-                        backgroundColor: [
-                            '#FF6B35',
-                            '#FFB020',
-                            '#06D6A0',
-                            '#0A1628',
-                            '#6B7280'
-                        ]
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom'
-                        }
-                    }
-                }
-            });
-        }
-
-        // Trocar tab de ocorrências
-        let currentOccurrenceTab = 'cancelled';
-
-        function switchOccurrenceTab(tabName) {
-            currentOccurrenceTab = tabName;
-            
-            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-            event.target.classList.add('active');
-            
-            loadReportData();
-        }
-
-        // Atualizar ocorrências
-        function updateOccurrences(occurrences) {
-            const content = document.getElementById('occurrences-content');
-
-            const filtered = occurrences.filter(o => {
-                if (currentOccurrenceTab === 'cancelled') return o.type === 'CANCELLED';
-                if (currentOccurrenceTab === 'late') return o.type === 'LATE';
-                if (currentOccurrenceTab === 'returned') return o.type === 'RETURNED';
-                return false;
-            });
-
-            if (filtered.length === 0) {
-                content.innerHTML = '<p style="text-align: center; padding: 3rem; color: #6B7280;">Nenhuma ocorrência encontrada</p>';
-                return;
-            }
-
-            content.innerHTML = filtered.map(occurrence => `
-                <div class="occurrence-item ${occurrence.type.toLowerCase()}">
-                    <div class="occurrence-header">
-                        <span class="occurrence-id">#${occurrence.orderId}</span>
-                        <span class="occurrence-date">${formatDate(occurrence.date)}</span>
-                    </div>
-                    <div class="occurrence-details">
-                        <strong>${occurrence.clientName}</strong> - ${occurrence.address}
-                    </div>
-                    <div style="margin-top: 0.5rem;">
-                        <span class="badge badge-${occurrence.type.toLowerCase()}">
-                            ${getOccurrenceLabel(occurrence.type)}
-                        </span>
-                        ${occurrence.reason ? `<p style="margin-top: 0.5rem; font-size: 0.875rem; color: var(--gray);">${occurrence.reason}</p>` : ''}
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function getOccurrenceLabel(type) {
-            const labels = {
-                'CANCELLED': 'Cancelado',
-                'LATE': 'Fora do Prazo',
-                'RETURNED': 'Devolvido'
-            };
-            return labels[type] || type;
-        }
-
-        // Carregar filtro de entregadores
-        function loadDriversFilter(drivers) {
-            const select = document.getElementById('driver-filter');
-            
-            select.innerHTML = '<option value="">Todos</option>';
-            
-            if (drivers && drivers.length > 0) {
-                drivers.forEach(driver => {
-                    const option = document.createElement('option');
-                    option.value = driver.id;
-                    option.textContent = `${driver.name} ${driver.surname}`;
-                    select.appendChild(option);
-                });
-            }
         }
 
         // Exportar relatório

@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurações - FleetFlow</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --navy: #0A1628;
+            --navy-light: #1A2942;
+            --navy-lighter: #2A3952;
+            --orange: #FF6B35;
+            --orange-light: #FF8C61;
+            --yellow: #FFB020;
+            --green: #06D6A0;
+            --green-dark: #05B587;
+            --gray: #6B7280;
+            --gray-light: #E5E7EB;
+            --gray-lighter: #F9FAFB;
+            --white: #FFFFFF;
+            --red: #DC2626;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--gray-lighter);
+            color: var(--navy);
+            line-height: 1.6;
+        }
+
+        .shell {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: var(--navy);
+            color: var(--white);
+            padding: 2rem 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 100;
+        }
+
+        .sidebar-logo {
+            padding: 0 1.5rem 2rem;
+            border-bottom: 1px solid var(--navy-lighter);
+            margin-bottom: 2rem;
+        }
+
+        .logo-text {
+            font-family: 'Space Mono', monospace;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--orange);
+        }
+
+        .logo-subtitle {
+            font-size: 0.75rem;
+            color: var(--gray);
+            margin-top: 0.25rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.875rem 1.5rem;
+            color: var(--gray-light);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            background: var(--navy-light);
+            color: var(--white);
+            border-left-color: var(--orange);
+        }
+
+        .nav-link.active {
+            background: var(--navy-lighter);
+            color: var(--white);
+            border-left-color: var(--orange);
+        }
+
+        .nav-icon {
+            margin-right: 0.875rem;
+            font-size: 1.25rem;
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+        }
+
+        .topbar {
+            background: var(--white);
+            padding: 1.25rem 2rem;
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .topbar-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--navy);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--orange), var(--yellow));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: var(--white);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .user-avatar:hover {
+            transform: scale(1.1);
+        }
+
+        .content-area {
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .settings-layout {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 2rem;
+        }
+
+        /* Sidebar de Categorias */
+        .settings-sidebar {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            height: fit-content;
+            position: sticky;
+            top: 100px;
+        }
+
+        .settings-nav {
+            list-style: none;
+        }
+
+        .settings-nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .settings-nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.875rem 1rem;
+            color: var(--gray);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+        .settings-nav-link:hover {
+            background: var(--gray-lighter);
+            color: var(--navy);
+        }
+
+        .settings-nav-link.active {
+            background: linear-gradient(135deg, var(--orange), var(--orange-light));
+            color: var(--white);
+        }
+
+        .settings-nav-icon {
+            margin-right: 0.75rem;
+            font-size: 1.25rem;
+        }
+
+        /* Conteúdo Principal */
+        .settings-content {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .settings-section {
+            display: none;
+            animation: fadeInUp 0.4s ease;
+        }
+
+        .settings-section.active {
+            display: block;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+        }
+
+        .card-header {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--gray-light);
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--navy);
+            margin-bottom: 0.5rem;
+        }
+
+        .card-subtitle {
+            font-size: 0.95rem;
+            color: var(--gray);
+        }
+
+        /* Profile Photo */
+        .profile-photo-section {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .profile-photo {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--orange), var(--yellow));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--white);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .profile-photo-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        /* Form Groups */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            color: var(--navy);
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .form-input,
+        .form-select {
+            width: 100%;
+            padding: 0.875rem;
+            border: 2px solid var(--gray-light);
+            border-radius: 8px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+        }
+
+        .form-input:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: var(--orange);
+            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+        }
+
+        .form-help {
+            font-size: 0.875rem;
+            color: var(--gray);
+            margin-top: 0.5rem;
+        }
+
+        /* Toggle Switch */
+        .toggle-group {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.25rem;
+            background: var(--gray-lighter);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .toggle-info h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--navy);
+            margin-bottom: 0.25rem;
+        }
+
+        .toggle-info p {
+            font-size: 0.875rem;
+            color: var(--gray);
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 32px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--gray-light);
+            transition: 0.3s;
+            border-radius: 32px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 24px;
+            width: 24px;
+            left: 4px;
+            bottom: 4px;
+            background: var(--white);
+            transition: 0.3s;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        input:checked + .toggle-slider {
+            background: var(--green);
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(28px);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.875rem 1.75rem;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--orange);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background: var(--orange-light);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .btn-secondary {
+            background: var(--gray-light);
+            color: var(--navy);
+        }
+
+        .btn-secondary:hover {
+            background: var(--gray);
+            color: var(--white);
+        }
+
+        .btn-danger {
+            background: var(--red);
+            color: var(--white);
+        }
+
+        .btn-danger:hover {
+            background: #b91c1c;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--orange);
+            border: 2px solid var(--orange);
+        }
+
+        .btn-ghost:hover {
+            background: var(--orange);
+            color: var(--white);
+        }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+
+        /* Price Table */
+        .price-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .price-table th,
+        .price-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .price-table th {
+            background: var(--gray-lighter);
+            font-weight: 600;
+            color: var(--navy);
+        }
+
+        .price-table input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 2px solid var(--gray-light);
+            border-radius: 6px;
+        }
+
+        .price-table input:focus {
+            outline: none;
+            border-color: var(--orange);
+        }
+
+        /* Vehicles List */
+        .vehicle-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.25rem;
+            background: var(--gray-lighter);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .vehicle-info h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--navy);
+            margin-bottom: 0.25rem;
+        }
+
+        .vehicle-info p {
+            font-size: 0.875rem;
+            color: var(--gray);
+        }
+
+        .vehicle-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* Danger Zone */
+        .danger-zone {
+            border: 2px solid var(--red);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+
+        .danger-zone-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .danger-icon {
+            font-size: 2rem;
+        }
+
+        .danger-zone h3 {
+            color: var(--red);
+            font-size: 1.25rem;
+        }
+
+        .danger-zone p {
+            color: var(--gray);
+            margin-bottom: 1.5rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .settings-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .settings-sidebar {
+                position: static;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+            }
+
+            .sidebar {
+                transform: translateX(-100%);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="shell">
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-text">FleetFlow</div>
+                <div class="logo-subtitle">Configurações</div>
+            </div>
+            <nav>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="admin.html" class="nav-link">
+                            <span class="nav-icon">📊</span>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="financeiro.html" class="nav-link">
+                            <span class="nav-icon">💰</span>
+                            Financeiro
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="relatorios.html" class="nav-link">
+                            <span class="nav-icon">📈</span>
+                            Relatórios
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link active">
+                            <span class="nav-icon">⚙️</span>
+                            Configurações
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="topbar">
+                <h1 class="topbar-title">Configurações</h1>
+                <div class="user-avatar" id="avatar">AD</div>
+            </div>
+
+            <div class="content-area">
+                <div class="settings-layout">
+                    <!-- Sidebar de Categorias -->
+                    <aside class="settings-sidebar">
+                        <ul class="settings-nav">
+                            <li class="settings-nav-item">
+                                <a href="#" class="settings-nav-link active" onclick="switchSection(event, 'profile')">
+                                    <span class="settings-nav-icon">👤</span>
+                                    Perfil
+                                </a>
+                            </li>
+                            <li class="settings-nav-item">
+                                <a href="#" class="settings-nav-link" onclick="switchSection(event, 'notifications')">
+                                    <span class="settings-nav-icon">🔔</span>
+                                    Notificações
+                                </a>
+                            </li>
+                            <li class="settings-nav-item">
+                                <a href="#" class="settings-nav-link" onclick="switchSection(event, 'security')">
+                                    <span class="settings-nav-icon">🔒</span>
+                                    Segurança
+                                </a>
+                            </li>
+                            <li class="settings-nav-item" id="admin-pricing" style="display: none;">
+                                <a href="#" class="settings-nav-link" onclick="switchSection(event, 'pricing')">
+                                    <span class="settings-nav-icon">💵</span>
+                                    Tabela de Preços
+                                </a>
+                            </li>
+                            <li class="settings-nav-item" id="admin-vehicles" style="display: none;">
+                                <a href="#" class="settings-nav-link" onclick="switchSection(event, 'vehicles')">
+                                    <span class="settings-nav-icon">🚚</span>
+                                    Gestão de Veículos
+                                </a>
+                            </li>
+                        </ul>
+                    </aside>
+
+                    <!-- Conteúdo Principal -->
+                    <div class="settings-content">
+                        <!-- Seção: Perfil -->
+                        <section id="section-profile" class="settings-section active">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h2 class="card-title">Informações do Perfil</h2>
+                                    <p class="card-subtitle">Atualize suas informações pessoais</p>
+                                </div>
+
+                                <div class="profile-photo-section">
+                                    <div class="profile-photo" id="profile-photo-preview">AD</div>
+                                    <div class="profile-photo-actions">
+                                        <button class="btn btn-secondary btn-sm" onclick="document.getElementById('photo-upload').click()">
+                                            📷 Alterar Foto
+                                        </button>
+                                        <input type="file" id="photo-upload" style="display: none;" accept="image/*" onchange="previewPhoto(event)">
+                                        <button class="btn btn-ghost btn-sm" onclick="removePhoto()">
+                                            🗑️ Remover
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <form onsubmit="updateProfile(event)">
+                                    <div class="form-grid">
+                                        <div class="form-group">
+                                            <label class="form-label">Nome</label>
+                                            <input type="text" class="form-input" id="profile-name" placeholder="João" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">Sobrenome</label>
+                                            <input type="text" class="form-input" id="profile-surname" placeholder="Silva" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">Email</label>
+                                            <input type="email" class="form-input" id="profile-email" placeholder="joao@exemplo.com" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">Telefone</label>
+                                            <input type="tel" class="form-input" id="profile-phone" placeholder="(11) 99999-9999">
+                                        </div>
+                                        <div class="form-group full-width">
+                                            <label class="form-label">Endereço</label>
+                                            <input type="text" class="form-input" id="profile-address" placeholder="Rua Exemplo, 123">
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">
+                                        💾 Salvar Alterações
+                                    </button>
+                                </form>
+                            </div>
+                        </section>
+
+                        <!-- Seção: Notificações -->
+                        <section id="section-notifications" class="settings-section">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h2 class="card-title">Preferências de Notificações</h2>
+                                    <p class="card-subtitle">Gerencie como você recebe avisos</p>
+                                </div>
+
+                                <div class="toggle-group">
+                                    <div class="toggle-info">
+                                        <h4>Novos Pedidos</h4>
+                                        <p>Receba avisos quando um novo pedido for criado</p>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="notify-new-orders" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+
+                                <div class="toggle-group">
+                                    <div class="toggle-info">
+                                        <h4>Status de Entrega</h4>
+                                        <p>Atualizações quando o status de uma entrega mudar</p>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="notify-status-change" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+
+                                <div class="toggle-group">
+                                    <div class="toggle-info">
+                                        <h4>Mensagens do Sistema</h4>
+                                        <p>Avisos importantes sobre manutenção e atualizações</p>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="notify-system" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+
+                                <div class="toggle-group">
+                                    <div class="toggle-info">
+                                        <h4>Email Diário</h4>
+                                        <p>Resumo das atividades enviado por email</p>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="notify-daily-email">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+
+                                <button class="btn btn-primary" onclick="saveNotificationPreferences()">
+                                    💾 Salvar Preferências
+                                </button>
+                            </div>
+                        </section>
+
+                        <!-- Seção: Segurança -->
+                        <section id="section-security" class="settings-section">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h2 class="card-title">Alterar Senha</h2>
+                                    <p class="card-subtitle">Mantenha sua conta segura</p>
+                                </div>
+
+                                <form onsubmit="changePassword(event)">
+                                    <div class="form-group">
+                                        <label class="form-label">Senha Atual</label>
+                                        <input type="password" class="form-input" id="current-password" placeholder="••••••••" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Nova Senha</label>
+                                        <input type="password" class="form-input" id="new-password" placeholder="••••••••" required>
+                                        <p class="form-help">Mínimo de 8 caracteres</p>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Confirmar Nova Senha</label>
+                                        <input type="password" class="form-input" id="confirm-password" placeholder="••••••••" required>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">
+                                        🔒 Alterar Senha
+                                    </button>
+                                </form>
+                            </div>
+
+                            <!-- Danger Zone -->
+                            <div class="danger-zone">
+                                <div class="danger-zone-header">
+                                    <span class="danger-icon">⚠️</span>
+                                    <h3>Zona de Perigo</h3>
+                                </div>
+                                <p>Ao sair, você será desconectado e precisará fazer login novamente.</p>
+                                <button class="btn btn-danger" onclick="logout()">
+                                    🚪 Sair da Conta
+                                </button>
+                            </div>
+                        </section>
+
+                        <!-- Seção: Tabela de Preços (Admin) -->
+                        <section id="section-pricing" class="settings-section">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h2 class="card-title">Tabela de Preços</h2>
+                                    <p class="card-subtitle">Configure os valores de frete</p>
+                                </div>
+
+                                <table class="price-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Tipo de Cálculo</th>
+                                            <th>Valor</th>
+                                            <th>Unidade</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><strong>Taxa Fixa</strong></td>
+                                            <td><input type="number" step="0.01" value="15.00" id="fixed-rate"></td>
+                                            <td>R$ por entrega</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Valor por Kg</strong></td>
+                                            <td><input type="number" step="0.01" value="2.50" id="per-kg-rate"></td>
+                                            <td>R$ por kg</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Taxa de Urgência</strong></td>
+                                            <td><input type="number" step="0.01" value="10.00" id="urgency-rate"></td>
+                                            <td>R$ adicional</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Desconto Volume</strong></td>
+                                            <td><input type="number" step="0.01" value="5.00" id="volume-discount"></td>
+                                            <td>% acima de 10 pedidos</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                                <button class="btn btn-primary" onclick="savePricing()" style="margin-top: 1.5rem;">
+                                    💾 Salvar Preços
+                                </button>
+                            </div>
+                        </section>
+
+                        <!-- Seção: Gestão de Veículos (Admin) -->
+                        <section id="section-vehicles" class="settings-section">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h2 class="card-title">Gestão de Veículos</h2>
+                                    <p class="card-subtitle">Cadastre e gerencie tipos de veículos</p>
+                                </div>
+
+                                <div id="vehicles-list">
+                                    <!-- Veículos carregados dinamicamente -->
+                                </div>
+
+                                <button class="btn btn-primary" onclick="openAddVehicleModal()">
+                                    + Adicionar Novo Veículo
+                                </button>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const API_URL = "http://localhost:3000/api";
+        const token = localStorage.getItem('token');
+        const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+
+        // Verificar autenticação
+        window.addEventListener('DOMContentLoaded', () => {
+            if (!token || !currentUser.id) {
+                window.location.href = '/login';
+                return;
+            }
+
+            updateAvatar();
+            loadUserProfile();
+            checkAdminAccess();
+            loadVehicles();
+        });
+
+        function updateAvatar() {
+            const avatar = document.getElementById('avatar');
+            const photoPreview = document.getElementById('profile-photo-preview');
+            
+            if (currentUser.name) {
+                const initials = currentUser.name.charAt(0).toUpperCase() + 
+                    (currentUser.surname ? currentUser.surname.charAt(0).toUpperCase() : '');
+                avatar.textContent = initials;
+                photoPreview.textContent = initials;
+            }
+        }
+
+        function checkAdminAccess() {
+            if (currentUser.role === 'ADMIN') {
+                document.getElementById('admin-pricing').style.display = 'block';
+                document.getElementById('admin-vehicles').style.display = 'block';
+            }
+        }
+
+        // Trocar seção
+        function switchSection(event, sectionId) {
+            event.preventDefault();
+
+            // Remover active de todos
+            document.querySelectorAll('.settings-nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            document.querySelectorAll('.settings-section').forEach(section => {
+                section.classList.remove('active');
+            });
+
+            // Adicionar active no clicado
+            event.target.classList.add('active');
+            document.getElementById('section-' + sectionId).classList.add('active');
+        }
+
+        // Carregar perfil do usuário
+        async function loadUserProfile() {
+            try {
+                const res = await fetch(`${API_URL}/auth/me`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                    credentials: 'include'
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    document.getElementById('profile-name').value = data.user.name || '';
+                    document.getElementById('profile-surname').value = data.user.surname || '';
+                    document.getElementById('profile-email').value = data.user.email || '';
+                    document.getElementById('profile-phone').value = data.user.phone || '';
+                    document.getElementById('profile-address').value = data.user.address || '';
+                }
+            } catch (error) {
+                console.error('Erro ao carregar perfil:', error);
+            }
+        }
+
+        // Preview de foto
+        function previewPhoto(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('profile-photo-preview');
+                    preview.style.backgroundImage = `url(${e.target.result})`;
+                    preview.style.backgroundSize = 'cover';
+                    preview.style.backgroundPosition = 'center';
+                    preview.textContent = '';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function removePhoto() {
+            const preview = document.getElementById('profile-photo-preview');
+            preview.style.backgroundImage = '';
+            const initials = currentUser.name.charAt(0).toUpperCase() + 
+                (currentUser.surname ? currentUser.surname.charAt(0).toUpperCase() : '');
+            preview.textContent = initials;
+        }
+
+        // Atualizar perfil
+        async function updateProfile(event) {
+            event.preventDefault();
+
+            const data = {
+                name: document.getElementById('profile-name').value,
+                surname: document.getElementById('profile-surname').value,
+                email: document.getElementById('profile-email').value,
+                phone: document.getElementById('profile-phone').value,
+                address: document.getElementById('profile-address').value
+            };
+
+            try {
+                const res = await fetch(`${API_URL}/users/profile`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(data)
+                });
+
+                const result = await res.json();
+
+                if (res.ok) {
+                    alert('✓ Perfil atualizado com sucesso!');
+                    // Atualizar localStorage
+                    localStorage.setItem('user', JSON.stringify(result.user));
+                    location.reload();
+                } else {
+                    alert(`Erro: ${result.error}`);
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('Erro ao atualizar perfil');
+            }
+        }
+
+        // Salvar preferências de notificação
+        function saveNotificationPreferences() {
+            const preferences = {
+                newOrders: document.getElementById('notify-new-orders').checked,
+                statusChange: document.getElementById('notify-status-change').checked,
+                system: document.getElementById('notify-system').checked,
+                dailyEmail: document.getElementById('notify-daily-email').checked
+            };
+
+            localStorage.setItem('notification-preferences', JSON.stringify(preferences));
+            alert('✓ Preferências salvas!');
+        }
+
+        // Alterar senha
+        async function changePassword(event) {
+            event.preventDefault();
+
+            const currentPassword = document.getElementById('current-password').value;
+            const newPassword = document.getElementById('new-password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+
+            if (newPassword !== confirmPassword) {
+                alert('As senhas não coincidem!');
+                return;
+            }
+
+            if (newPassword.length < 8) {
+                alert('A senha deve ter no mínimo 8 caracteres!');
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_URL}/users/change-password`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        currentPassword,
+                        newPassword
+                    })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    alert('✓ Senha alterada com sucesso!');
+                    event.target.reset();
+                } else {
+                    alert(`Erro: ${data.error}`);
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('Erro ao alterar senha');
+            }
+        }
+
+        // Salvar preços
+        async function savePricing() {
+            const pricing = {
+                fixedRate: parseFloat(document.getElementById('fixed-rate').value),
+                perKgRate: parseFloat(document.getElementById('per-kg-rate').value),
+                urgencyRate: parseFloat(document.getElementById('urgency-rate').value),
+                volumeDiscount: parseFloat(document.getElementById('volume-discount').value)
+            };
+
+            try {
+                const res = await fetch(`${API_URL}/settings/pricing`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(pricing)
+                });
+
+                if (res.ok) {
+                    alert('✓ Preços atualizados com sucesso!');
+                } else {
+                    alert('Erro ao salvar preços');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('Erro ao salvar preços');
+            }
+        }
+
+        // Carregar veículos
+        async function loadVehicles() {
+            try {
+                const res = await fetch(`${API_URL}/vehicles`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                    credentials: 'include'
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    displayVehicles(data.vehicles);
+                }
+            } catch (error) {
+                console.error('Erro ao carregar veículos:', error);
+            }
+        }
+
+        function displayVehicles(vehicles) {
+            const list = document.getElementById('vehicles-list');
+
+            if (!vehicles || vehicles.length === 0) {
+                list.innerHTML = '<p style="text-align: center; color: var(--gray); padding: 2rem;">Nenhum veículo cadastrado</p>';
+                return;
+            }
+
+            list.innerHTML = vehicles.map(vehicle => `
+                <div class="vehicle-item">
+                    <div class="vehicle-info">
+                        <h4>${vehicle.nome} - ${vehicle.marca}</h4>
+                        <p>Tipo: ${vehicle.tipo} | Capacidade: ${vehicle.capacidade || '-'} kg | CRV: ${vehicle.crv}</p>
+                    </div>
+                    <div class="vehicle-actions">
+                        <button class="btn btn-secondary btn-sm" onclick="editVehicle(${vehicle.id})">
+                            ✏️ Editar
+                        </button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteVehicle(${vehicle.id})">
+                            🗑️
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openAddVehicleModal() {
+            alert('Modal de adicionar veículo em desenvolvimento');
+        }
+
+        function editVehicle(id) {
+            alert(`Editar veículo ${id}`);
+        }
+
+        function deleteVehicle(id) {
+            if (confirm('Tem certeza que deseja excluir este veículo?')) {
+                alert(`Deletar veículo ${id}`);
+            }
+        }
+
+        // Logout
+        function logout() {
+            if (confirm('Tem certeza que deseja sair?')) {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = '/login';
+            }
+        }
+    </script>
+</body>
+</html>

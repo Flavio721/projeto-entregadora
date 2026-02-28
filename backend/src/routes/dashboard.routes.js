@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { authMiddleware } from '../middlewares/auth.js';
-import { isAdmin } from '../middlewares/roles.js';
+import { checkRole, isAdmin } from '../middlewares/roles.js';
 import {
     dashboard,
     getBestDrivers,
@@ -11,7 +11,7 @@ import {
 
 const router = Router();
 
-router.get('/kpis', authMiddleware, isAdmin, dashboard);
+router.get('/kpis', authMiddleware, checkRole("ADMIN", "OPERATOR"), dashboard);
 
 router.get('/ranking', authMiddleware, isAdmin, getBestDrivers);
 
