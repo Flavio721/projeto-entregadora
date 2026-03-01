@@ -4,7 +4,7 @@ const prisma = new PrismaClient();
 
 export async function create(req, res){
     try{
-        const { crv, marca, tipo, ano } = req.body;
+        const { crv, marca, tipo, ano, capacity } = req.body;
 
         const existingCrv = await prisma.veiculo.findUnique({
             where: { crv: crv }
@@ -19,6 +19,7 @@ export async function create(req, res){
                 marca,
                 tipo,
                 ano,
+                capacity
             }
         });
         return res.status(201).json({

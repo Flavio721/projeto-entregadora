@@ -13,7 +13,6 @@ enum Role{
     DELIVERY_MAN
 }
 enum Delivery{
-    CREATED
     PENDING
     IN_DELIVERY
     DELIVERED
@@ -69,13 +68,13 @@ model Pedido {
   id              Int      @id @default(autoincrement())
   created_at      DateTime @default(now())
   estimated_date  DateTime
-  delivered_date  DateTime
+  delivered_date  DateTime?
   address         String?
   peso            Float
-  status          Delivery @default(CREATED)
+  status          Delivery @default(PENDING)
   valor           Float
   frete           Float
-  imageUrl        String
+  imageUrl        String?
   clientCpf       String
   clientName      String
 
@@ -100,6 +99,7 @@ model Veiculo{
   tipo            String
   ano             Int
   status          Vehicle @default(AVALIABLE)
+  capacity        Float
 
   pedidos  Pedido[]
   users    User[]

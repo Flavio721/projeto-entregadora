@@ -219,3 +219,17 @@ export async function updateUserData(req, res){
         return res.status(500).json({ error: "Erro ao atualizar usuário" });
     }
 }
+export async function getOperators(req, res){
+    try{
+        const operators = await prisma.user.findMany({
+            where: { role: "OPERATOR" }
+        });
+
+        return res.status(200).json({
+            users: operators
+        })
+    }catch (error){
+        console.error("Erro: ", error);
+        return res.status(500).json({ error: "Erro ao buscar operadores" });
+    }
+}

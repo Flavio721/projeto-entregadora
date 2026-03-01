@@ -676,12 +676,6 @@
                     </li>
                 </ul>
             </nav>
-            <div class="nav-footer">
-                <a href="admin.html" class="nav-footer-link">
-                    <span class="nav-icon">👤</span>
-                    Painel Admin
-                </a>
-            </div>
         </aside>
 
         <main class="main-content">
@@ -745,9 +739,6 @@
                     <button class="btn btn-primary" onclick="openModal('assign-modal')">
                         + Atribuir Entrega
                     </button>
-                    <button class="btn btn-primary" onclick="openModal('create-modal')">
-                        + Criar Entrega
-                    </button>
                 </div>
 
                 <div class="data-table">
@@ -783,7 +774,7 @@
                 <form onsubmit="assignDelivery(event)">
                     <div class="form-group">
                         <label class="form-label">Número do Pedido</label>
-                        <input type="text" class="form-input" placeholder="2466" value="2466" readonly>
+                        <input type="text" class="form-input" placeholder="2466">
                     </div>
                     <div class="form-group">
                         <label class="form-label">Peso da Carga (kg)</label>
@@ -808,45 +799,6 @@
             </div>
         </div>
     </div>
-
-
-    <!-- Modal de criação de entrega -->
-     <div id="assign-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Criar Nova Entrega</h3>
-                <button class="modal-close" onclick="closeModal('assign-modal')">✕</button>
-            </div>
-            <div class="modal-body">
-                <form onsubmit="createDelivery(event)">
-                    <div class="form-group">
-                        <label class="form-label">Endereço do destino</label>
-                        <input type="text" class="form-input" placeholder="Rua A, Bairo B" id="iend" readonly>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Peso da Carga (kg)</label>
-                        <input type="number" class="form-input" placeholder="0.0" step="0.1" id="cargo-weight" required>
-                        <p class="form-help">Insira o peso da carga para validar o veículo apropriado</p>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label" for="ivalor">Valor unitário do produto</label>
-                        <input type="number" name="Valor" id="ivalor" required placeholder="Insira apenas o valor">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" for="ivalor">CPF do cliente</label>
-                        <input type="text" name="cpf" id="icpf" required placeholder="123.456.789-10">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" for="ivalor">Nome e sobrenome do cliente</label>
-                        <input type="text" name="nome" id="inome" required placeholder="João Silva">
-                    </div>
-                    <button type="submit" class="btn btn-primary btn-full">Confirmar Atribuição</button>
-                </form>
-            </div>
-        </div>
-    </div>
-
     <script>
         const token = localStorage.getItem('token');
         const API_URL = "http://localhost:3000/api";
@@ -1045,7 +997,7 @@
         }
         async function getOrders(){
             try{
-                const res = await fetch(`${API_URL}/orders`, {
+                const res = await fetch(`${API_URL}/orders/my-operating-orders`, {
                     headers: { 'Authorization': `Bearer ${token}`},
                     credentials: 'include'
                 })

@@ -1,25 +1,29 @@
 import express from 'express';
 import { authMiddleware } from '../middlewares/auth.js';
 import { checkRole, isAdmin, isDeliveryMan, isOperator } from '../middlewares/roles.js';
-import { adminOrdersData, createEntrega, getOrders, getTodayOrders } from '../controllers/entrega.controller.js';
+import { adminOrdersData, assignOrder, createEntrega, getMyOperatingOrders, getMyOrders, getOrders, getTodayOrders } from '../controllers/entrega.controller.js';
 
 const router = express.Router();
 
 
 // Rotas de obtenção de dados
-router.get("/", authMiddleware, checkRole("OPERATOR", "ADMIN"), getOrders);
+router.get("/", authMiddleware, isAdmin, getOrders);
 
 // Rota do admin
-router.get("/dashboard", authMiddleware, isAdmin, adminOrdersData)
-// Rotas do operador
-router.post("/create", authMiddleware, isOperator, createEntrega);
+router.get("/dashboard", authMiddleware, isAdmin, adminOrdersData);
+router.post("/create", authMiddleware, isAdmin, createEntrega);
 
-router.get("/orders-pending", authMiddleware, isOperator) // Função que retorna pedidos em espera;
+// Rotas do operador
+router.get("/my-operating-orders", authMiddleware, isOperator, getMyOperatingOrders);
+
+router.get("/orders-pending", authMiddleware, checkRole("ADMIN", "OPERATOR"), getOrders) // Função que retorna pedidos em espera;
 router.post("/select-worker", authMiddleware, isDeliveryMan) // Função que recebe os dados do entregador atribuido
 router.get("/orders-today", authMiddleware, isOperator, getTodayOrders);
 
+router.patch("/:id/assign", authMiddleware, isAdmin, assignOrder)
+
 
 // Rotas do entregador
-router.get("/my-orders", authMiddleware, isDeliveryMan) // Função que retorna as entregas atribuidas ao entregador
+router.get("/my-orders", authMiddleware, isDeliveryMan, getMyOrders) // Função que retorna as entregas atribuidas ao entregador
 
 export default router;

@@ -5,22 +5,25 @@ const prisma = new PrismaClient();
 
 export async function createEntrega(req, res) {
     try {
-        const { date, address, weight, value, clientCpf, clientName } = req.body;
+        const { address, weight, value, clientCpf, clientName } = req.body;
         const creatorId = req.user.id;
+        const today = new Date();
+        const more14Days = new Date();
+        more14Days.setDate(today.getDate() + 14);
 
         const finalValue = calculateValue(value, weight);
         const frete = calculateFrete(weight);
 
         const entrega = await prisma.pedido.create({
             data: {
-                estimated_date: date,
+                estimated_date: more14Days,
                 address: address,
-                peso: weight,
+                peso: parseFloat(weight),
                 created_by: creatorId,
-                valor: finalValue,
+                valor: parseFloat(finalValue),
                 frete: frete,
                 clientCpf: clientCpf,
-                clientName: clientName
+                clientName: clientName,
             }
         });
 
@@ -33,6 +36,7 @@ export async function createEntrega(req, res) {
             entrega
         });
     } catch (error) {
+        console.error("Erro: ", error);
         return res.status(500).json({ error: "Erro ao criar entrega" });
     }   
 }
@@ -40,11 +44,11 @@ export async function assignOrderDetails(req, res){
     try{
         const { orderId, deliveryManId, vehicleId } = req.body;
 
-        const existingOperator = await prisma.user.findUnique({
+        const existingDeliveryMan = await prisma.user.findUnique({
             where: { id: deliveryManId},
         });
 
-        if(!existingOperator){
+        if(!existingDeliveryMan){
             return res.status(404).json({ error: "Entregador não encontrado"});
         }
         
@@ -419,5 +423,99 @@ export async function adminOrdersData(req, res){
     }catch(error){
         console.error("Erro ao buscar dados admin:", error);
         return res.status(500).json({ error: "Erro ao buscar dados administrativos" });
+    }
+}
+export async function getMyOrders(req, res){
+    try{
+        const userId = req.user.id;
+        const startOfDay = new Date();
+        startOfDay.setHours(0, 0, 0, 0);
+        
+        const endOfDay = new Date();
+        endOfDay.setHours(23, 59, 59, 999);
+
+        const ordersActive = await prisma.pedido.count({
+            where: { 
+                catched_by: userId,
+                status: "IN_DELIVERY"
+            }
+        });
+        const ordersDelivered = await prisma.pedido.count({
+            where: {
+                catched_by: userId,
+                status: "DELIVERED",
+                delivered_date: {
+                        gte: startOfDay,
+                        lte: endOfDay
+                }
+            }
+        });
+        const allOrders = await prisma.pedido.count({
+            where: { catched_by: userId }
+        });
+
+        return res.status(200).json({
+            ativas: ordersActive,
+            entregues: ordersDelivered,
+            total: allOrders
+        });
+    }catch (error){
+        console.error("Erro: ", error);
+        return res.status(500).json({ error: "Erro ao buscar entregas" });
+    }
+}
+export async function getMyOperatingOrders(req, res){
+    try{
+        const userId = req.user.id;
+
+        const operatingOrders = await prisma.pedido.findMany({
+            where: { administered_by: userId }
+        });
+
+        return res.status(200).json({
+            orders: operatingOrders
+        });
+    }catch(error){
+        console.error("Erro: ", error);
+        return res.status(500).json({ error: "Erro ao buscar pedidos" });
+    }
+}
+export async function assignOrder(req, res){
+    try{
+        const { id } = req.params;
+        const { operatorId } = req.body;
+
+        const existingOrder = await prisma.pedido.findUnique({
+            where: { id: parseInt(id)}
+        });
+
+        if(!existingOrder){
+            return res.status(404).json({ error: "Pedido não encontrado" });
+        }
+
+        const existingOperator = await prisma.user.findUnique({
+            where: { id: parseInt(operatorId),
+                    role: "OPERATOR"
+            }
+        });
+
+        if(!existingOperator){
+            return res.status(404).json({ error: "Operador não encontrado" });
+        }
+
+        const assignOrder = await prisma.pedido.update({
+            where: { id: parseInt(id) },
+            data: {
+                administered_by: operatorId
+            }
+        });
+
+        return res.status(201).json({
+            message: "Pedido atribuido com sucesso!",
+            assignOrder
+        });
+    }catch(error){
+        console.error("Erro: ", error);
+        return res.status(500).json({ error: "Erro ao atribuir pedido" });
     }
 }

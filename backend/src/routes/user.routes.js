@@ -1,5 +1,5 @@
 import express from 'express';
-import { deleteUser, getDeliveryMan, getUserById, getUsers, updateUser, updateUserData } from '../controllers/user.controller.js';
+import { deleteUser, getDeliveryMan, getOperators, getUserById, getUsers, updateUser, updateUserData } from '../controllers/user.controller.js';
 import { authMiddleware } from '../middlewares/auth.js';
 import { checkRole, isAdmin, isOperator } from '../middlewares/roles.js';
 import { assignTypeVehicle } from '../controllers/veiculos.controller.js';
@@ -8,7 +8,7 @@ const router = express.Router();
 
 router.get("/", authMiddleware, isAdmin, getUsers);
 
-
+router.get("/operators", authMiddleware, isAdmin, getOperators)
 router.post("/update", authMiddleware, isAdmin, updateUser);
 router.delete("/delete", authMiddleware, isAdmin, deleteUser);
 

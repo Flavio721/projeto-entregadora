@@ -847,7 +847,7 @@
         // Carregar entregas da API
         async function loadDeliveries() {
             try {
-                const res = await fetch(`${API_URL}/deliveries/my-deliveries`, {
+                const res = await fetch(`${API_URL}/orders/my-orders`, {
                     headers: { 
                         'Authorization': `Bearer ${token}`
                     },
