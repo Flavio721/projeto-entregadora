@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Veiculo" ALTER COLUMN "crv" SET DATA TYPE TEXT;

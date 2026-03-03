@@ -137,9 +137,63 @@ export async function getDeliveryMan(req, res){
                 }
             }
         });
+        const drivers_cars = await prisma.user.findMany({
+            where: { role: "DELIVERY_MAN",
+                type_vehicle: "CAR"
+            },
+            select: {
+                id: true,
+                name: true,
+                surname: true,
+                email: true,
+                type_vehicle: true,
+                _count: {
+                    select: {
+                        catchedPedidos: true
+                    }
+                }
+            }
+        });
+        const drivers_truck = await prisma.user.findMany({
+            where: { role: "DELIVERY_MAN",
+                type_vehicle: "TRUCK"
+            },
+            select: {
+                id: true,
+                name: true,
+                surname: true,
+                email: true,
+                type_vehicle: true,
+                _count: {
+                    select: {
+                        catchedPedidos: true
+                    }
+                }
+            }
+        });
+        const drivers_motorcycle = await prisma.user.findMany({
+            where: { role: "DELIVERY_MAN",
+                type_vehicle: "MOTOCYCLE"
+            },
+            select: {
+                id: true,
+                name: true,
+                surname: true,
+                email: true,
+                type_vehicle: true,
+                _count: {
+                    select: {
+                        catchedPedidos: true
+                    }
+                }
+            }
+        });
 
         return res.status(200).json({
-            users: drivers
+            users: drivers,
+            motor: drivers_motorcycle,
+            cars: drivers_cars,
+            truck: drivers_truck
         });
     }catch(error){
         console.error("Erro: ", error);

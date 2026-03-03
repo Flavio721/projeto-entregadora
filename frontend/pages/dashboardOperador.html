@@ -820,9 +820,9 @@
         }
         let vehicles = [];
         let drivers = {
-            moto: [],
-            van: [],
-            caminhao: []
+            MOTOCYCLE: [],
+            TRUCK: [],
+            CAR: []
         };
 
         // Validação de peso
@@ -849,8 +849,8 @@
                 compatibleVehicles.forEach(vehicle => {
                     const option = document.createElement('option');
                     option.value = vehicle.id;
-                    option.textContent = `${vehicle.name} (Cap: ${vehicle.capacity}kg)`;
-                    option.dataset.type = vehicle.type;
+                    option.textContent = `${vehicle.nome} (Cap: ${vehicle.capacity}kg)`;
+                    option.dataset.type = vehicle.tipo;
                     vehicleSelect.appendChild(option);
                 });
                 
@@ -879,8 +879,8 @@
             
             drivers[vehicleType].forEach(driver => {
                 const option = document.createElement('option');
-                option.value = driver;
-                option.textContent = driver;
+                option.value = driver.id;
+                option.textContent = `${driver.name} ${driver.surname}`;
                 driverSelect.appendChild(option);
             });
         });
@@ -1208,9 +1208,9 @@
                     console.error("Erro na busca de entregadores: ", data.error);
                     return;
                 }
-                drivers.moto = data.motor;
-                drivers.caminhao = data.truck;
-                drivers.van = data.cars;
+                drivers.MOTOCYCLE = data.motor;
+                drivers.TRUCK = data.truck;
+                drivers.CAR = data.cars;
             }catch (error){
                 console.log("Erro: ", error);
                 return;

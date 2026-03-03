@@ -54,10 +54,18 @@ export async function setVehicle(req, res){
             return res.status(404).json({ error: "Erro ao buscar entregador"});
         }
 
+        const vehicle = await prisma.veiculo.findUnique({
+            where: { id: vehicleId},
+            select: {
+                tipo: true
+            }
+        })
+
         const updateDriver = await prisma.user.update({
             where: { id: deliveryManId},
             data: {
-                carroId: vehicleId
+                carroId: vehicleId,
+                type_vehicle: vehicle.tipo
             }
         });
 

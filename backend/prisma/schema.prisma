@@ -40,6 +40,11 @@ enum PaymentStatus {
   PAID
   CANCELLED
 }
+enum TypeVehicle {
+  CAR
+  TRUCK
+  MOTOCYCLE
+}
 model User {
   id        Int     @id @default(autoincrement())
   name      String
@@ -52,7 +57,7 @@ model User {
   user_status   Status @default(ACTIVE)
   role      Role    @default(DELIVERY_MAN)
   status    DeliveryManStatus?
-  type_vehicle  String?
+  type_vehicle  TypeVehicle?
   avatarUrl   String?
   carroId     Int?
 
@@ -93,10 +98,10 @@ model Pedido {
 }
 model Veiculo{
   id              Int      @id @default(autoincrement())
-  crv             Int      @unique
+  crv             String      @unique
   nome            String
   marca           String
-  tipo            String
+  tipo            TypeVehicle
   ano             Int
   status          Vehicle @default(AVALIABLE)
   capacity        Float

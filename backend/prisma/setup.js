@@ -58,4 +58,40 @@ async function createUsers(){
         console.error("Erro: ", error);
     }
 }
-createUsers();
+async function createVehicles(){
+    const newCar = await prisma.veiculo.create({
+        data: {
+            crv: '2567182906',
+            nome: "Fiat Fiorino",
+            marca: "Fiat",
+            tipo: "CAR",
+            ano: 2018,
+            status: "AVALIABLE",
+            capacity: 650,
+        }
+    })
+    const newTruck = await prisma.veiculo.create({
+        data: {
+            crv: '8172901892',
+            nome: "Volkswagen Delivery",
+            marca: "Volkswagen",
+            tipo: "TRUCK",
+            ano: 2021,
+            status: "AVALIABLE",
+            capacity: 1335,
+        }
+    })
+    const newMotorCycle = await prisma.veiculo.create({
+        data: {
+            crv: '3291087615',
+            nome: "Honda CG 160",
+            marca: "Honda",
+            tipo: "MOTOCYCLE",
+            ano: 2020,
+            status: "AVALIABLE",
+            capacity: 20,
+        }
+    })
+    
+}
+createVehicles();
