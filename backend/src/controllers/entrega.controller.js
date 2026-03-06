@@ -42,10 +42,12 @@ export async function createEntrega(req, res) {
 }
 export async function assignOrderDetails(req, res){
     try{
-        const { orderId, deliveryManId, vehicleId } = req.body;
+        const { id } = req.params;
+        const orderId = id;
+        const { deliveryManId, vehicleId } = req.body;
 
         const existingDeliveryMan = await prisma.user.findUnique({
-            where: { id: deliveryManId},
+            where: { id: parseInt(deliveryManId)},
         });
 
         if(!existingDeliveryMan){
@@ -53,7 +55,7 @@ export async function assignOrderDetails(req, res){
         }
         
         const existingVehicle = await prisma.veiculo.findUnique({
-            where: { id: vehicleId }
+            where: { id: parseInt(vehicleId) }
         });
 
         if(!existingVehicle){
@@ -61,15 +63,15 @@ export async function assignOrderDetails(req, res){
         }
 
         const updatedOrder = await prisma.pedido.update({
-            where: { id: orderId },
+            where: { id: parseInt(orderId) },
             data: {
-                catched_by: deliveryManId,
-                carroId: vehicleId
+                catched_by: parseInt(deliveryManId),
+                carroId: parseInt(vehicleId)
             }
         });
 
         const updateVehicleStatus = await prisma.veiculo.update({
-            where: { id: vehicleId },
+            where: { id: parseInt(vehicleId) },
             data: {
                 status: "UNAVALIABLE"
             }
@@ -469,7 +471,15 @@ export async function getMyOperatingOrders(req, res){
         const userId = req.user.id;
 
         const operatingOrders = await prisma.pedido.findMany({
-            where: { administered_by: userId }
+            where: { administered_by: userId },
+            include: {
+                catchedBy: {
+                    select: {
+                        name: true,
+                        surname: true
+                    }
+                }
+            }
         });
 
         return res.status(200).json({
@@ -490,17 +500,20 @@ export async function assignOrder(req, res){
         });
 
         if(!existingOrder){
+            console.log("Erro na busca por pedido");
             return res.status(404).json({ error: "Pedido não encontrado" });
         }
 
-        const existingOperator = await prisma.user.findUnique({
+        const existingDeliveryMan = await prisma.user.findFirst({
             where: { id: parseInt(operatorId),
-                    role: "OPERATOR"
+                    role: "DELIVERY_MAN"
             }
         });
 
         if(!existingOperator){
+            console.log("Erro na busca por entregador");
             return res.status(404).json({ error: "Operador não encontrado" });
+
         }
 
         const assignOrder = await prisma.pedido.update({

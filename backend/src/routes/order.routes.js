@@ -1,7 +1,7 @@
 import express from 'express';
 import { authMiddleware } from '../middlewares/auth.js';
 import { checkRole, isAdmin, isDeliveryMan, isOperator } from '../middlewares/roles.js';
-import { adminOrdersData, assignOrder, createEntrega, getMyOperatingOrders, getMyOrders, getOrders, getTodayOrders } from '../controllers/entrega.controller.js';
+import { adminOrdersData, assignOrder, assignOrderDetails, createEntrega, getMyOperatingOrders, getMyOrders, getOrders, getTodayOrders } from '../controllers/entrega.controller.js';
 
 const router = express.Router();
 
@@ -22,6 +22,7 @@ router.get("/orders-today", authMiddleware, isOperator, getTodayOrders);
 
 router.patch("/:id/assign", authMiddleware, isAdmin, assignOrder)
 
+router.patch("/:id/assign/delivery", authMiddleware, isOperator, assignOrderDetails)
 
 // Rotas do entregador
 router.get("/my-orders", authMiddleware, isDeliveryMan, getMyOrders) // Função que retorna as entregas atribuidas ao entregador
