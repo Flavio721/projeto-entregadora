@@ -452,14 +452,27 @@ export async function getMyOrders(req, res){
                 }
             }
         });
-        const allOrders = await prisma.pedido.count({
-            where: { catched_by: userId }
+        const allOrdersCount = await prisma.pedido.count({
+            where: { catched_by: userId },
+        });
+         const allOrdersSelect = await prisma.pedido.findMany({
+            where: { catched_by: userId },
+            select: {
+                id: true,
+                status: true,
+                clientName: true,
+                delivered_date: true,
+                address: true,
+                peso: true,
+                estimated_date: true
+            }
         });
 
         return res.status(200).json({
             ativas: ordersActive,
             entregues: ordersDelivered,
-            total: allOrders
+            total: allOrdersSelect,
+            totalCount: allOrdersCount
         });
     }catch (error){
         console.error("Erro: ", error);
@@ -530,5 +543,66 @@ export async function assignOrder(req, res){
     }catch(error){
         console.error("Erro: ", error);
         return res.status(500).json({ error: "Erro ao atribuir pedido" });
+    }
+}
+export async function finishOrder(req, res){
+    try{
+        const userId = req.user.id;
+        const { id } = req.params; 
+        
+        
+        const orderId = parseInt(id);
+        if (isNaN(orderId)) {
+            return res.status(400).json({ error: "ID inválido" });
+        }
+
+        if (!req.file) {
+            return res.status(400).json({ error: "Comprovante de entrega é obrigatório" });
+        }
+
+
+        const existingOrder = await prisma.pedido.findUnique({
+            where: { id: orderId }
+        });
+
+        if(!existingOrder){
+            return res.status(404).json({ error: "Pedido não encontrado" });
+        }
+
+        if(existingOrder.catched_by !== userId){
+            return res.status(403).json({ error: "Este pedido não pertence a você" });
+        }
+
+        if(existingOrder.status === 'DELIVERED'){
+            return res.status(400).json({ error: "Este pedido já foi entregue" });
+        }
+
+        const updatedOrder = await prisma.pedido.update({
+            where: { id: orderId },
+            data: {
+                status: "DELIVERED",
+                delivered_date: new Date(), 
+                imageUrl: `/uploads/proofs/${req.file.filename}` 
+            },
+            include: {
+                catchedBy: {
+                    select: {
+                        id: true,
+                        name: true,
+                        surname: true
+                    }
+                }
+            }
+        });
+
+
+        return res.status(200).json({
+            message: "Pedido finalizado com sucesso",
+            order: updatedOrder
+        });
+
+    }catch(error){
+        console.error("❌ Erro ao finalizar pedido:", error);
+        return res.status(500).json({ error: "Erro ao finalizar pedido" });
     }
 }

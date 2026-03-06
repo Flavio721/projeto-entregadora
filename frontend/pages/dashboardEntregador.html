@@ -721,7 +721,7 @@
                 <span class="filter-label">Filtrar por:</span>
                 <select class="filter-select" id="status-filter" onchange="filterDeliveries()">
                     <option value="all">Todas as entregas</option>
-                    <option value="IN_TRANSIT" selected>Em Trânsito</option>
+                    <option value="IN_DELIVERY" selected>Em Trânsito</option>
                     <option value="PENDING">Pendentes</option>
                     <option value="DELIVERED">Entregues</option>
                 </select>
@@ -861,10 +861,10 @@
                     return;
                 }
 
-                allDeliveries = data.deliveries || [];
+                allDeliveries = data.total || [];
                 
                 // Aplicar filtro atual
-                const filterValue = document.getElementById('status-filter')?.value || 'IN_TRANSIT';
+                const filterValue = document.getElementById('status-filter')?.value || 'IN_DELIVERY';
                 if (filterValue === 'all') {
                     displayDeliveries(allDeliveries);
                 } else {
@@ -896,13 +896,13 @@
 
             const statusBadge = {
                 'PENDING': 'badge-pending',
-                'IN_TRANSIT': 'badge-transit',
+                'IN_DELIVERY': 'badge-transit',
                 'DELIVERED': 'badge-delivered'
             };
 
             const statusText = {
                 'PENDING': 'Pendente',
-                'IN_TRANSIT': 'Em Trânsito',
+                'IN_DELIVERY': 'Em Trânsito',
                 'DELIVERED': 'Entregue'
             };
 
@@ -923,14 +923,14 @@
                                     <div class="info-icon">👤</div>
                                     <div class="info-text">
                                         <div class="info-label">Cliente</div>
-                                        <div class="info-value">${delivery.recipient || 'N/A'}</div>
+                                        <div class="info-value">${delivery.clientName || 'N/A'}</div>
                                     </div>
                                 </div>
                                 <div class="info-row">
                                     <div class="info-icon">✓</div>
                                     <div class="info-text">
                                         <div class="info-label">Entregue em</div>
-                                        <div class="info-value">${formatDate(delivery.deliveredAt)}</div>
+                                        <div class="info-value">${formatDate(delivery.delivered_date)}</div>
                                     </div>
                                 </div>
                                 <div class="info-row">
@@ -957,7 +957,7 @@
                                 <div class="info-icon">👤</div>
                                 <div class="info-text">
                                     <div class="info-label">Cliente</div>
-                                    <div class="info-value">${delivery.recipient || 'N/A'}</div>
+                                    <div class="info-value">${delivery.clientName || 'N/A'}</div>
                                 </div>
                             </div>
                             <div class="info-row">
@@ -974,12 +974,12 @@
                                     <div class="info-value">${delivery.weight || 'N/A'} kg</div>
                                 </div>
                             </div>
-                            ${delivery.deadline ? `
+                            ${delivery.estimated_date ? `
                             <div class="info-row">
                                 <div class="info-icon">⏰</div>
                                 <div class="info-text">
                                     <div class="info-label">Previsão</div>
-                                    <div class="info-value">${formatDeadline(delivery.deadline)}</div>
+                                    <div class="info-value">${formatDeadline(delivery.estimated_date)}</div>
                                 </div>
                             </div>
                             ` : ''}
@@ -1095,8 +1095,8 @@
                 formData.append('deliveryId', currentDeliveryId);
                 formData.append('status', 'DELIVERED');
 
-                const res = await fetch(`${API_URL}/deliveries/${currentDeliveryId}/complete`, {
-                    method: 'POST',
+                const res = await fetch(`${API_URL}/orders/finish-order/${currentDeliveryId}`, {
+                    method: 'PATCH',
                     headers: {
                         'Authorization': `Bearer ${token}`
                     },

@@ -1,7 +1,8 @@
 import express from 'express';
 import { authMiddleware } from '../middlewares/auth.js';
 import { checkRole, isAdmin, isDeliveryMan, isOperator } from '../middlewares/roles.js';
-import { adminOrdersData, assignOrder, assignOrderDetails, createEntrega, getMyOperatingOrders, getMyOrders, getOrders, getTodayOrders } from '../controllers/entrega.controller.js';
+import { adminOrdersData, assignOrder, assignOrderDetails, createEntrega, finishOrder, getMyOperatingOrders, getMyOrders, getOrders, getTodayOrders } from '../controllers/entrega.controller.js';
+import upload from '../configs/multer.js';
 
 const router = express.Router();
 
@@ -26,5 +27,12 @@ router.patch("/:id/assign/delivery", authMiddleware, isOperator, assignOrderDeta
 
 // Rotas do entregador
 router.get("/my-orders", authMiddleware, isDeliveryMan, getMyOrders) // Função que retorna as entregas atribuidas ao entregador
+router.patch(
+  "/finish-order/:id",
+  authMiddleware,
+  isDeliveryMan,
+  upload.single("proof"),
+  finishOrder
+); // Função que atualiza status do pedido para entregue
 
 export default router;
