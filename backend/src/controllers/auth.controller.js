@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 
 export async function registerUser(req, res) {
     try {
-        const { name, surname, email, password, cpf, address, phone, role, typeVehicle } = req.body;
+        const { name, surname, email, password, cpf, address, phone, typeVehicle } = req.body;
         
         const existingEmail = await prisma.user.findUnique({
             where: { email }
@@ -108,7 +108,7 @@ export async function createUser(req, res){
             return res.status(400).json({ error: "Campos obrigatórios vazios"});
         }
 
-        const hashedPassword = bcrypt.hash(password, 10);
+        const hashedPassword = await bcrypt.hash(password, 10);
         const checkVehicle = typeVehicle ? typeVehicle.toUpperCase() : null;
         const create = await prisma.user.create({
             data: {

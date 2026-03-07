@@ -10,6 +10,10 @@ export function pageAuth(req, res, next) {
 
   try {
     const decoded = verifyToken(token);
+    if(!decoded){
+      console.log("Token inválido")
+      return res.redirect("/login");
+    }
     req.user = decoded;
     next();
   } catch(error) {
