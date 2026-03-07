@@ -6,6 +6,7 @@ import path from "path";
 import routes from "./src/routes/index.js";
 import pageRoutes from "./src/routes/page.routes.js";
 import { fileURLToPath } from "url";
+import helmet from 'helmet';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -14,12 +15,14 @@ dotenv.config();
 
 const app = express();
 
+app.use(helmet());
+
 app.use(cors({
   origin: "http://localhost:3000",
   credentials: true
 }));
-app.use(cookieParser())
 app.use(express.json());
+app.use(cookieParser())
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/uploads", express.static(path.join(__dirname, "/uploads")));
