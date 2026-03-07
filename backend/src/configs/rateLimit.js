@@ -28,8 +28,15 @@ export const apiLimiter = rateLimit({
     message: { error: "Muitas requisições à API. Tente novamente em 1 minuto" },
     standardHeaders: true,
     legacyHeaders: false,
+    validate: false,
     keyGenerator: (req) => {
-        return req.user?.id || req.ip
+        // Se tiver usuário autenticado, usar ID
+        if (req.user?.id) {
+            return `user:${req.user.id}`;
+        }
+        // Senão, o express-rate-limit usa req.ip automaticamente
+        // com tratamento correto de IPv6
+        return undefined;
     }
 });
 export const searchLimiter = rateLimit({

@@ -34,7 +34,6 @@ export async function registerUser(req, res) {
                 cpf,
                 address,
                 phone,
-                role: role,
                 type_vehicle: checkVehicle // Vai ser null para ADMIN e OPERATOR
             }
         });
