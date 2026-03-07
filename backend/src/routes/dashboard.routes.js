@@ -8,17 +8,18 @@ import {
     getLogs,
     heatLocations
 } from '../controllers/dashboard.controller.js';
+import { searchLimiter } from '../configs/rateLimit.js';
 
 const router = Router();
 
-router.get('/kpis', authMiddleware, checkRole("ADMIN", "OPERATOR"), dashboard);
+router.get('/kpis', searchLimiter, authMiddleware, checkRole("ADMIN", "OPERATOR"), dashboard);
 
-router.get('/ranking', authMiddleware, isAdmin, getBestDrivers);
+router.get('/ranking', searchLimiter, authMiddleware, isAdmin, getBestDrivers);
 
-router.get('/heatmap', authMiddleware, isAdmin, heatLocations);
+router.get('/heatmap', searchLimiter, authMiddleware, isAdmin, heatLocations);
 
-router.get('/occurrences', authMiddleware, isAdmin, getLogs);
+router.get('/occurrences', searchLimiter, authMiddleware, isAdmin, getLogs);
 
-router.get('/drivers', authMiddleware, isAdmin, getDeliveryPerformance);
+router.get('/drivers', searchLimiter, authMiddleware, isAdmin, getDeliveryPerformance);
 
 export default router;

@@ -1,38 +1,50 @@
 import express from 'express';
 import { authMiddleware } from '../middlewares/auth.js';
 import { checkRole, isAdmin, isDeliveryMan, isOperator } from '../middlewares/roles.js';
-import { adminOrdersData, assignOrder, assignOrderDetails, createEntrega, finishOrder, getMyOperatingOrders, getMyOrders, getOrders, getTodayOrders } from '../controllers/entrega.controller.js';
+import { 
+    adminOrdersData, 
+    assignOrder, 
+    assignOrderDetails, 
+    createEntrega, 
+    finishOrder, 
+    getMyOperatingOrders, 
+    getMyOrders, 
+    getOrders, 
+    getTodayOrders 
+} from '../controllers/entrega.controller.js';
 import upload from '../configs/multer.js';
+import { 
+    searchLimiter, 
+    apiLimiter, 
+    uploadLimiter 
+} from '../configs/rateLimit.js'; // ⭐ Importar
 
 const router = express.Router();
 
+// ⭐ Listagens/buscas (search limiter)
+router.get("/", searchLimiter, authMiddleware, isAdmin, getOrders);
+router.get("/dashboard", searchLimiter, authMiddleware, isAdmin, adminOrdersData);
+router.get("/my-operating-orders", searchLimiter, authMiddleware, isOperator, getMyOperatingOrders);
+router.get("/orders-pending", searchLimiter, authMiddleware, checkRole("ADMIN", "OPERATOR"), getOrders);
+router.get("/orders-today", searchLimiter, authMiddleware, isOperator, getTodayOrders);
+router.get("/my-orders", searchLimiter, authMiddleware, isDeliveryMan, getMyOrders);
 
-// Rotas de obtenção de dados
-router.get("/", authMiddleware, isAdmin, getOrders);
+// ⭐ Criação/atualização (API limiter)
+router.post("/create", apiLimiter, authMiddleware, isAdmin, createEntrega);
+router.patch("/:id/assign", apiLimiter, authMiddleware, isAdmin, assignOrder);
+router.patch("/:id/assign/delivery", apiLimiter, authMiddleware, isOperator, assignOrderDetails);
 
-// Rota do admin
-router.get("/dashboard", authMiddleware, isAdmin, adminOrdersData);
-router.post("/create", authMiddleware, isAdmin, createEntrega);
-
-// Rotas do operador
-router.get("/my-operating-orders", authMiddleware, isOperator, getMyOperatingOrders);
-
-router.get("/orders-pending", authMiddleware, checkRole("ADMIN", "OPERATOR"), getOrders) // Função que retorna pedidos em espera;
-router.post("/select-worker", authMiddleware, isDeliveryMan) // Função que recebe os dados do entregador atribuido
-router.get("/orders-today", authMiddleware, isOperator, getTodayOrders);
-
-router.patch("/:id/assign", authMiddleware, isAdmin, assignOrder)
-
-router.patch("/:id/assign/delivery", authMiddleware, isOperator, assignOrderDetails)
-
-// Rotas do entregador
-router.get("/my-orders", authMiddleware, isDeliveryMan, getMyOrders) // Função que retorna as entregas atribuidas ao entregador
+// ⭐ Upload (upload limiter)
 router.patch(
   "/finish-order/:id",
+  uploadLimiter,
   authMiddleware,
   isDeliveryMan,
   upload.single("proof"),
   finishOrder
-); // Função que atualiza status do pedido para entregue
+);
+
+// ⭐ Rota sem controller - REMOVER ou implementar
+// router.post("/select-worker", authMiddleware, isDeliveryMan)
 
 export default router;

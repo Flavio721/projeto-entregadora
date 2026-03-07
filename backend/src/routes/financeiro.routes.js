@@ -7,23 +7,24 @@ import {
     getDriverReport,
     updatePaymentStatus
 } from '../controllers/financeiro.controller.js';
+import { 
+    searchLimiter, 
+    apiLimiter 
+} from '../configs/rateLimit.js'; // ⭐ Importar
 
 const router = Router();
 
-// Todas as rotas requerem autenticação de ADMIN
 router.use(authMiddleware);
 router.use(isAdmin);
 
-// GET /api/financial/summary - Resumo financeiro com filtros
-router.get('/summary', getFinancialSummary);
+// ⭐ Relatórios (search limiter - podem ser pesados)
+router.get('/summary', searchLimiter, getFinancialSummary);
+router.get('/driver-report/:id', searchLimiter, getDriverReport);
 
-// GET /api/financial/export - Exportar dados para CSV
-router.get('/export', exportToCSV);
+// ⭐ Export (API limiter)
+router.get('/export', apiLimiter, exportToCSV);
 
-// GET /api/financial/driver-report/:id - Relatório de entregador específico
-router.get('/driver-report/:id', getDriverReport);
-
-// PATCH /api/financial/payment/:id - Atualizar status de pagamento
-router.patch('/payment/:id', updatePaymentStatus);
+// ⭐ Atualização (API limiter)
+router.patch('/payment/:id', apiLimiter, updatePaymentStatus);
 
 export default router;
